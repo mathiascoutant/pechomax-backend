@@ -1,4 +1,6 @@
-interface OptionBase<T, K extends Error> {
+import { BaseOptionException } from './error'
+
+interface OptionBase<T, K extends BaseOptionException<unknown>> {
   isOk(): this is Ok<T>
   isErr(): this is Err<K>
 }
@@ -7,11 +9,11 @@ interface Ok<T> extends OptionBase<T, null> {
   content: T
 }
 
-interface Err<K extends Error> extends OptionBase<null, K> {
+interface Err<K extends BaseOptionException<unknown>> extends OptionBase<null, K> {
   error: K
 }
 
-export type Option<T, K extends Error> = Ok<T> | Err<K>
+export type Option<T, K extends BaseOptionException<unknown>> = Ok<T> | Err<K>
 
 export const Ok = function <T>(content: T): Option<T, null> {
   return {
@@ -25,7 +27,7 @@ export const Ok = function <T>(content: T): Option<T, null> {
   }
 }
 
-export const Err = function <K extends Error>(error: K): Option<null, K> {
+export const Err = function <K extends BaseOptionException<unknown>>(error: K): Option<null, K> {
   return {
     error,
     isOk() {
