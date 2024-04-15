@@ -42,8 +42,8 @@ export class User {
   @Column({ type: 'text', nullable: true })
   public zip_code?: string
 
-  @Column({ type: 'int' })
-  public score: number
+  @Column({ type: 'int', default: 0 })
+  public score?: number
 
   @Column({ type: 'date' })
   public created_at!: Date
