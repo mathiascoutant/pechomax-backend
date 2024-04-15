@@ -115,4 +115,39 @@ export class UsersService {
       }
     }
   }
+
+  async finOneByUsername(username: string): Promise<Option<CleanUser, UserNotFoundException | BaseError>>
+  async finOneByUsername(
+    username: string,
+    withPassword: false
+  ): Promise<Option<CleanUser, UserNotFoundException | BaseError>>
+  async finOneByUsername(username: string, withPassword: true): Promise<Option<User, UserNotFoundException | BaseError>>
+  async finOneByUsername(
+    username: string,
+    withPassword = false
+  ): Promise<Option<CleanUser | User, UserNotFoundException | BaseError>> {
+    try {
+      const user = withPassword
+        ? await this.userRepository
+            .createQueryBuilder('user')
+            .where('user.username = :username', { username })
+            .addSelect('user.password')
+            .getOne()
+        : await this.userRepository.findOne({ where: { username } })
+
+      if (!user) {
+        return Err(new UserNotFoundException())
+      }
+
+      return Ok(user)
+    } catch (error) {
+      if (error instanceof TypeORMError) {
+        return Err(new DatabaseInternalError(error))
+      }
+
+      if (error instanceof Error) {
+        return Err(new UnknownError(error))
+      }
+    }
+  }
 }
