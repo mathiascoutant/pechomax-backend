@@ -26,7 +26,7 @@ export class AuthService {
     return hashedPassword
   }
 
-  async signup({
+  async register({
     email,
     password,
     username,
