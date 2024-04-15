@@ -7,6 +7,7 @@ import { CreateUserDto } from '../dto/create-user.dto'
 import { CleanUser } from '../types/utilities'
 import { UserAlreadyExistException, UserNotFoundException } from '../types/error'
 import { BaseError, DatabaseInternalError, UnknownError } from 'src/types/error'
+import { UpdateUserDto } from '../dto/update-user.dto'
 
 @Injectable()
 export class UsersService {
@@ -146,6 +147,22 @@ export class UsersService {
       }
 
       return Ok(user)
+    } catch (error) {
+      if (error instanceof TypeORMError) {
+        return Err(new DatabaseInternalError(error))
+      }
+
+      if (error instanceof Error) {
+        return Err(new UnknownError(error))
+      }
+    }
+  }
+
+  async update(id: string, userDatas: UpdateUserDto): Promise<Option<number, BaseError>> {
+    try {
+      const user = await this.userRepository.update(id, userDatas)
+
+      return Ok(user.affected)
     } catch (error) {
       if (error instanceof TypeORMError) {
         return Err(new DatabaseInternalError(error))
