@@ -33,4 +33,22 @@ export class UsersController {
     return res.status(HttpStatus.CREATED).send(register.content.user)
   }
 
+  @Post('auth/login')
+  async login(@Body() loginDto: LoginDto, @Res() res: FastifyReply) {
+    const login = await this.authService.login(loginDto)
+
+    if (login.isErr()) {
+      const { error } = login
+      if (error.type === 'WrongPasswordException') {
+        return res.status(HttpStatus.UNAUTHORIZED).send('Wrong credentials')
+      }
+
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+    }
+
+    res.setCookie('access_token', login.content.access_token)
+
+    return res.status(HttpStatus.CREATED).send(login.content.user)
+  }
+
 }
