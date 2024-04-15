@@ -14,10 +14,10 @@ export class Conversation {
   @Column({ type: 'text' })
   public title!: string
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP(6)' })
   public created_at!: Date
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP(6)', onUpdate: 'CURRENT_TIMESTAMP(6)' })
   public updated_at!: Date
 
   @Column({ type: 'uuid' })

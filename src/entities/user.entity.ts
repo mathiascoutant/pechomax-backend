@@ -45,10 +45,10 @@ export class User {
   @Column({ type: 'int', default: 0 })
   public score?: number
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP(6)' })
   public created_at!: Date
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP(6)', onUpdate: 'CURRENT_TIMESTAMP(6)' })
   public updated_at!: Date
 
   @OneToMany(() => Message, (message) => message.user)

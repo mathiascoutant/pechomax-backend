@@ -23,11 +23,11 @@ export class Location {
   @Column({ type: 'text' })
   public description!: string
 
-  @Column({ type: 'date' })
-  public created_at!: string
+  @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP(6)' })
+  public created_at!: Date
 
-  @Column({ type: 'date' })
-  public updated_at!: string
+  @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP(6)', onUpdate: 'CURRENT_TIMESTAMP(6)' })
+  public updated_at!: Date
 
   @Column({ type: 'text' })
   public user_id!: string
