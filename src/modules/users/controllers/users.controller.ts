@@ -6,6 +6,7 @@ import { type FastifyRequest, type FastifyReply } from 'fastify'
 import { AuthService } from '../services/auth.service'
 import { Payload } from 'src/types/payload'
 import { IsAuthGuard } from 'src/guards/isAuth.guard'
+import { UpdateUserDto } from '../dto/update-user.dto'
 
 @Controller('users')
 export class UsersController {
@@ -99,4 +100,15 @@ export class UsersController {
     return res.status(HttpStatus.OK).send(user.content)
   }
 
+  @UseGuards(IsAuthGuard)
+  @Post('/update/:id')
+  async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Res() res: FastifyReply) {
+    const user = await this.userService.update(id, updateUserDto)
+
+    if (user.isErr()) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+    }
+
+    return res.status(HttpStatus.OK).send(user.content)
+  }
 }
