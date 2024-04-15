@@ -27,8 +27,8 @@ export class User {
   })
   public role?: 'Admin' | 'User'
 
-  @Column({ unique: true, type: 'text' })
-  public phone_number!: string
+  @Column({ unique: true, type: 'text', nullable: true })
+  public phone_number?: string
 
   @Column({ type: 'text', nullable: true })
   public profile_pic?: string
