@@ -51,4 +51,35 @@ export class UsersController {
     return res.status(HttpStatus.CREATED).send(login.content.user)
   }
 
+  @UseGuards(IsAuthGuard)
+  @Get('self')
+  async getSelf(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    const { id } = req['payload'] as Payload
+
+    const user = await this.userService.findOne(id)
+
+    if (user.isErr()) {
+      const { error } = user
+
+      if (error.type === 'UserNotFoundException') {
+        return res.status(HttpStatus.NOT_FOUND).send(user.error)
+      }
+
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+    }
+
+    return res.status(HttpStatus.OK).send(user.content)
+  }
+
+  @Get()
+  async getUsers(@Res() res: FastifyReply) {
+    const users = await this.userService.findAll()
+
+    if (users.isErr()) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+    }
+
+    return res.status(HttpStatus.OK).send(users.content)
+  }
+
 }
