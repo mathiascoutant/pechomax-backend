@@ -12,12 +12,12 @@ export class Level {
   @Column({ unique: true, type: 'text' })
   public title!: string
 
-  @Column({ unique: true, type: 'number' })
+  @Column({ unique: true, type: 'integer' })
   public value!: number
 
-  @Column({ type: 'number' })
+  @Column({ type: 'integer' })
   public start!: number
 
-  @Column({ type: 'number' })
+  @Column({ type: 'integer' })
   public score!: number
 }

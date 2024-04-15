@@ -42,7 +42,7 @@ export class User {
   @Column({ type: 'text', nullable: true })
   public zip_code?: string
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: 'integer', default: 0 })
   public score?: number
 
   @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP(6)' })

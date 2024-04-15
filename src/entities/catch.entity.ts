@@ -14,7 +14,7 @@ export class Catch {
   @Column({ type: 'float' })
   public length!: number
 
-  @Column({ type: 'float' })
+  @Column({ type: 'decimal' })
   public weight!: number
 
   @Column({ type: 'text' })
@@ -26,7 +26,7 @@ export class Catch {
   @Column({ type: 'text' })
   public description!: string
 
-  @Column({ type: 'int' })
+  @Column({ type: 'integer' })
   public point_value!: number
 
   @Column({ type: 'date' })

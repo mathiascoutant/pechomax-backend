@@ -14,7 +14,7 @@ export class Species {
   @Column({ unique: true, type: 'text' })
   public name!: string
 
-  @Column({ type: 'number' })
+  @Column({ type: 'integer' })
   public point_value!: number
 
   @OneToMany(() => Catch, (catchEntity) => catchEntity.species)
