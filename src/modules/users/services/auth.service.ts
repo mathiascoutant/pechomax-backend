@@ -25,38 +25,39 @@ export class AuthService {
     return hashedPassword
   }
 
-//   async signup({
-//     email,
-//     password,
-//     username,
-//     role,
-//   }: CreateUserDto): Promise<Option<CleanUser, UserAlreadyExistException | BaseError>> {
-//     const hashedPassword = await this.hashPassword(password)
+  async signup({
+    email,
+    password,
+    username,
+    role,
+  }: CreateUserDto): Promise<Option<{ access_token: string; user: CleanUser }, UserAlreadyExistException | BaseError>> {
+    const hashedPassword = await this.hashPassword(password)
 
-//     const user = {
-//       email,
-//       password: hashedPassword,
-//       username,
-//       role,
-//     }
+    const savedUser = await this.userService.create({
+      email,
+      password: hashedPassword,
+      username,
+      role,
+    })
 
-//     const savedUser = await this.userService.create(user)
+    if (savedUser.isErr()) {
+      return savedUser
+    }
 
-//     if (savedUser.isErr()) {
-//       return savedUser
-//     }
+    const payload: Payload = {
+      id: savedUser.content.id,
+      role: savedUser.content.role,
+      username: savedUser.content.username,
+    }
 
-//     return Ok(savedUser.content)
-//   }
+    return Ok({
+      access_token: this.jwtService.sign(payload, {
+        secret: this.configService.get('JWT_SECRET'),
+      }),
+      user: savedUser.content,
+    })
+  }
 
-//   async login({
-//     email,
-//     password,
-//   }: {
-//     email: string
-//     password: string
-//   }): Promise<Option<{ access_token: string }, WrongPasswordException | UserNotFoundException | BaseError>> {
-//     const user = await this.userService.finOneByEmail(email, true)
 
 //     if (user.isErr()) {
 //       return user
