@@ -84,10 +84,13 @@ export class UsersService {
     }
   }
 
-  async finOneByEmail(email: string): Promise<Option<CleanUser, UserNotFoundException | BaseError>>
-  async finOneByEmail(email: string, withPassword: false): Promise<Option<CleanUser, UserNotFoundException | BaseError>>
-  async finOneByEmail(email: string, withPassword: true): Promise<Option<User, UserNotFoundException | BaseError>>
-  async finOneByEmail(
+  async findOneByEmail(email: string): Promise<Option<CleanUser, UserNotFoundException | BaseError>>
+  async findOneByEmail(
+    email: string,
+    withPassword: false
+  ): Promise<Option<CleanUser, UserNotFoundException | BaseError>>
+  async findOneByEmail(email: string, withPassword: true): Promise<Option<User, UserNotFoundException | BaseError>>
+  async findOneByEmail(
     email: string,
     withPassword = false
   ): Promise<Option<CleanUser | User, UserNotFoundException | BaseError>> {
@@ -116,13 +119,16 @@ export class UsersService {
     }
   }
 
-  async finOneByUsername(username: string): Promise<Option<CleanUser, UserNotFoundException | BaseError>>
-  async finOneByUsername(
+  async findOneByUsername(username: string): Promise<Option<CleanUser, UserNotFoundException | BaseError>>
+  async findOneByUsername(
     username: string,
     withPassword: false
   ): Promise<Option<CleanUser, UserNotFoundException | BaseError>>
-  async finOneByUsername(username: string, withPassword: true): Promise<Option<User, UserNotFoundException | BaseError>>
-  async finOneByUsername(
+  async findOneByUsername(
+    username: string,
+    withPassword: true
+  ): Promise<Option<User, UserNotFoundException | BaseError>>
+  async findOneByUsername(
     username: string,
     withPassword = false
   ): Promise<Option<CleanUser | User, UserNotFoundException | BaseError>> {
