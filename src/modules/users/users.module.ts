@@ -1,4 +1,4 @@
-import { Module, ValidationPipe } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { UsersService } from './services/users.service'
 import { UsersController } from './controllers/users.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -10,16 +10,7 @@ import { ConfigModule } from '@nestjs/config'
 @Module({
   imports: [TypeOrmModule.forFeature([User]), JwtModule.register({}), ConfigModule],
   controllers: [UsersController],
-  providers: [
-    UsersService,
-    AuthService,
-    {
-      provide: 'APP_PIPE',
-      useValue: new ValidationPipe({
-        transform: true,
-      }),
-    },
-  ],
+  providers: [UsersService, AuthService],
   exports: [UsersService],
 })
 export class UsersModule {}
