@@ -82,4 +82,21 @@ export class UsersController {
     return res.status(HttpStatus.OK).send(users.content)
   }
 
+  @Get(':username')
+  async getUser(@Param('username') username: string, @Res() res: FastifyReply) {
+    const user = await this.userService.findOneByUsername(username)
+
+    if (user.isErr()) {
+      const { error } = user
+
+      if (error.type === 'UserNotFoundException') {
+        return res.status(HttpStatus.NOT_FOUND).send(user.error)
+      }
+
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+    }
+
+    return res.status(HttpStatus.OK).send(user.content)
+  }
+
 }
