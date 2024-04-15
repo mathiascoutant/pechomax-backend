@@ -59,15 +59,19 @@ export class AuthService {
   }
 
   async login({
+    username,
     email,
     password,
   }: {
-    email: string
+    username?: string
+    email?: string
     password: string
   }): Promise<
     Option<{ access_token: string; user: CleanUser }, UserNotFoundException | WrongPasswordException | BaseError>
   > {
-    const user = await this.userService.finOneByEmail(email, true)
+    const user = email
+      ? await this.userService.findOneByEmail(email, true)
+      : await this.userService.findOneByUsername(username, true)
 
     if (user.isErr()) {
       return user
