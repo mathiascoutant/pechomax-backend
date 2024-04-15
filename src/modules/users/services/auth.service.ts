@@ -9,6 +9,7 @@ import { CreateUserDto } from '../dto/create-user.dto'
 import { BaseError } from 'src/types/error'
 import { UserAlreadyExistException, UserNotFoundException, WrongPasswordException } from '../types/error'
 import { ConfigService } from '@nestjs/config'
+import { LoginDto } from '../dto/login.dto'
 
 @Injectable()
 export class AuthService {
@@ -62,11 +63,7 @@ export class AuthService {
     username,
     email,
     password,
-  }: {
-    username?: string
-    email?: string
-    password: string
-  }): Promise<
+  }: LoginDto): Promise<
     Option<{ access_token: string; user: CleanUser }, UserNotFoundException | WrongPasswordException | BaseError>
   > {
     const user = email
