@@ -12,10 +12,26 @@ import { Level } from './entities/level.entity'
 import { Conversation } from './entities/conversation.entity'
 import { Category } from './entities/category.entity'
 import { Catch } from './entities/catch.entity'
+import Joi from 'joi'
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        DB_HOST: Joi.string(),
+        DB_PORT: Joi.number(),
+        POSTGRES_USER: Joi.string(),
+        POSTGRES_PASSWORD: Joi.string(),
+        POSTGRES_DB: Joi.string(),
+        COOKIE_SECRET: Joi.string(),
+        JWT_SECRET: Joi.string(),
+      }),
+      validationOptions: {
+        allowUnknown: false,
+        abortEarly: true,
+      },
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
