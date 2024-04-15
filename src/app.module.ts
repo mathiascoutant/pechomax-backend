@@ -12,7 +12,8 @@ import { Level } from './entities/level.entity'
 import { Conversation } from './entities/conversation.entity'
 import { Category } from './entities/category.entity'
 import { Catch } from './entities/catch.entity'
-import Joi from 'joi'
+import * as Joi from 'joi'
+import { UsersModule } from './modules/users/users.module'
 
 @Module({
   imports: [
@@ -28,7 +29,6 @@ import Joi from 'joi'
         JWT_SECRET: Joi.string(),
       }),
       validationOptions: {
-        allowUnknown: false,
         abortEarly: true,
       },
     }),
@@ -44,7 +44,9 @@ import Joi from 'joi'
         entities: [User, SpeciesLocation, Species, Message, Location, Level, Conversation, Category, Catch],
         synchronize: true,
       }),
+      inject: [ConfigService],
     }),
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
