@@ -58,11 +58,40 @@ export class AuthService {
     })
   }
 
+  async login({
+    email,
+    password,
+  }: {
+    email: string
+    password: string
+  }): Promise<
+    Option<{ access_token: string; user: CleanUser }, UserNotFoundException | WrongPasswordException | BaseError>
+  > {
+    const user = await this.userService.finOneByEmail(email, true)
 
-//     if (user.isErr()) {
-//       return user
-//     }
+    if (user.isErr()) {
+      return user
+    }
 
-//     const isMatch = await compare(password, user.content.password)
+    const isMatch = await compare(password, user.content.password)
 
+    if (isMatch) {
+      const cleanUser = { ...user.content, password: undefined }
+
+      const payload: Payload = {
+        id: user.content.id,
+        role: user.content.role,
+        username: user.content.username,
+      }
+
+      return Ok({
+        access_token: this.jwtService.sign(payload, {
+          secret: this.configService.get('JWT_SECRET'),
+        }),
+        user: cleanUser,
+      })
+    } else {
+      return Err(new WrongPasswordException())
+    }
+  }
 }
