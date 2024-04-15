@@ -20,17 +20,4 @@ export class CreateUserDto {
   @IsOptional()
   @IsEnum(['User', 'Admin'])
   role?: UserRoles
-
-  @IsString()
-  @IsNotEmpty()
-  @Length(10)
-  phone_number: string
-
-  @IsString()
-  @IsNotEmpty()
-  city: string
-
-  @IsString()
-  @IsNotEmpty()
-  zip_code: string
 }
