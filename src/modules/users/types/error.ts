@@ -16,3 +16,11 @@ export class UserAlreadyExistException extends BaseOptionException<'UserAlreadyE
 
   type = 'UserAlreadyExistException' as const
 }
+
+export class WrongPasswordException extends BaseOptionException<'WrongPasswordException'> {
+  constructor(error?: QueryFailedError) {
+    super(error)
+  }
+
+  type = 'WrongPasswordException' as const
+}
