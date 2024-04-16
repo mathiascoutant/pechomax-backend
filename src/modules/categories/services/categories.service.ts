@@ -84,4 +84,20 @@ export class CategoriesService {
       }
     }
   }
+
+  async deleteOne(id: string): Promise<Option<number, BaseError>> {
+    try {
+      const deleted = await this.categoryRepository.delete(id)
+
+      return Ok(deleted.affected)
+    } catch (error) {
+      if (error instanceof TypeORMError) {
+        return Err(new DatabaseInternalError(error))
+      }
+
+      if (error instanceof Error) {
+        return Err(new UnknownError(error))
+      }
+    }
+  }
 }
