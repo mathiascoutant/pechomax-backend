@@ -68,4 +68,20 @@ export class CategoriesService {
       }
     }
   }
+
+  async updateOne(id: string, categoryDatas: CreateCategoryDto): Promise<Option<number, BaseError>> {
+    try {
+      const updated = await this.categoryRepository.update(id, categoryDatas)
+
+      return Ok(updated.affected)
+    } catch (error) {
+      if (error instanceof TypeORMError) {
+        return Err(new DatabaseInternalError(error))
+      }
+
+      if (error instanceof Error) {
+        return Err(new UnknownError(error))
+      }
+    }
+  }
 }
