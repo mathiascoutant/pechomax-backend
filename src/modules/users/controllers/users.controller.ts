@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Req, Res, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Req, Res, UseGuards } from '@nestjs/common'
 import { UsersService } from '../services/users.service'
 import { CreateUserDto } from '../dto/create-user.dto'
 import { LoginDto } from '../dto/login.dto'
@@ -101,7 +101,7 @@ export class UsersController {
   }
 
   @UseGuards(IsAuthGuard)
-  @Post('/update/:id')
+  @Put('/update/:id')
   async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Res() res: FastifyReply) {
     const user = await this.userService.updateOne(id, updateUserDto)
 
