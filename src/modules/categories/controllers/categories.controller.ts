@@ -12,4 +12,14 @@ import { CreateCategoryDto } from '../dto/create-category.dto'
 export class UsersController {
   constructor(private readonly categoryService: CategoriesService) {}
 
+  @Post('create')
+  async createCategory(@Body() updateCategoryDto: CreateCategoryDto, @Res() res: FastifyReply) {
+    const category = await this.categoryService.create(updateCategoryDto)
+
+    if (category.isErr()) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+    }
+
+    return res.status(HttpStatus.OK).send(category.content)
+  }
 }
