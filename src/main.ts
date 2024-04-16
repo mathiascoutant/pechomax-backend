@@ -9,7 +9,10 @@ async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter())
   const config = app.get(ConfigService)
 
-  app.enableCors()
+  app.enableCors({
+    origin: config.get('CORS_ORIGIN'),
+    credentials: true,
+  })
   app.useGlobalPipes(new ValidationPipe())
   app.register(fastifyCookie, {
     secret: config.get('COOKIE_SECRET'),
