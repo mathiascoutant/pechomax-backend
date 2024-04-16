@@ -22,4 +22,15 @@ export class UsersController {
 
     return res.status(HttpStatus.OK).send(category.content)
   }
+
+  @Get()
+  async getAll(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    const categoryList = await this.categoryService.findAll()
+
+    if (categoryList.isErr()) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+    }
+
+    return res.status(HttpStatus.OK).send(categoryList.content)
+  }
 }
