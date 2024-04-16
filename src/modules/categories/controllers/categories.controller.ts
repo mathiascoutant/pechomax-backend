@@ -50,4 +50,19 @@ export class UsersController {
 
     return res.status(HttpStatus.OK).send(category.content)
   }
+
+  @Put('update/:id')
+  async updateCategory(
+    @Param('id') id: string,
+    @Body() updateCategoryDto: CreateCategoryDto,
+    @Res() res: FastifyReply
+  ) {
+    const category = await this.categoryService.updateOne(id, updateCategoryDto)
+
+    if (category.isErr()) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+    }
+
+    return res.status(HttpStatus.OK).send(category.content)
+  }
 }
