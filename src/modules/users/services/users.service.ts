@@ -173,4 +173,20 @@ export class UsersService {
       }
     }
   }
+
+  async deleteOne(id: string): Promise<Option<number, BaseError>> {
+    try {
+      const a = await this.userRepository.delete(id)
+
+      return Ok(a.affected)
+    } catch (error) {
+      if (error instanceof TypeORMError) {
+        return Err(new DatabaseInternalError(error))
+      }
+
+      if (error instanceof Error) {
+        return Err(new UnknownError(error))
+      }
+    }
+  }
 }
