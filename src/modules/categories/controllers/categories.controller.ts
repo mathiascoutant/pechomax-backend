@@ -65,4 +65,15 @@ export class UsersController {
 
     return res.status(HttpStatus.OK).send(category.content)
   }
+
+  @Delete('delete/:id')
+  async deleteCategory(@Param('id') id: string, @Res() res: FastifyReply) {
+    const affected = await this.categoryService.deleteOne(id)
+
+    if (affected.isErr()) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+    }
+
+    return res.status(HttpStatus.OK).send(affected.content)
+  }
 }
