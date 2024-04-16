@@ -1,7 +1,7 @@
 import { QueryFailedError } from 'typeorm'
 import { BaseOptionException } from 'src/types/error'
 
-export class UserNotFoundException extends BaseOptionException<'UserNotFoundException'> {
+export class UserNotFoundException extends BaseOptionException {
   constructor(error?: QueryFailedError) {
     super(error)
   }
@@ -9,7 +9,7 @@ export class UserNotFoundException extends BaseOptionException<'UserNotFoundExce
   type = 'UserNotFoundException' as const
 }
 
-export class UserAlreadyExistException extends BaseOptionException<'UserAlreadyExistException'> {
+export class UserAlreadyExistException extends BaseOptionException {
   constructor(error?: QueryFailedError) {
     super(error)
   }
@@ -17,7 +17,7 @@ export class UserAlreadyExistException extends BaseOptionException<'UserAlreadyE
   type = 'UserAlreadyExistException' as const
 }
 
-export class WrongPasswordException extends BaseOptionException<'WrongPasswordException'> {
+export class WrongPasswordException extends BaseOptionException {
   constructor(error?: QueryFailedError) {
     super(error)
   }

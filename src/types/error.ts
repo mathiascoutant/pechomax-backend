@@ -1,15 +1,15 @@
 import { TypeORMError } from 'typeorm'
 
-export abstract class BaseOptionException<T extends string | unknown> extends Error {
+export abstract class BaseOptionException extends Error {
   constructor(public error?: Error) {
     super('')
     BaseOptionException.name
   }
 
-  abstract readonly type: T
+  abstract readonly type: string
 }
 
-export class UnknownError extends BaseOptionException<'UnknownError'> {
+export class UnknownError extends BaseOptionException {
   constructor(error: Error) {
     super(error)
   }
@@ -17,7 +17,7 @@ export class UnknownError extends BaseOptionException<'UnknownError'> {
   type = 'UnknownError' as const
 }
 
-export class DatabaseInternalError extends BaseOptionException<'DatabaseInternalError'> {
+export class DatabaseInternalError extends BaseOptionException {
   constructor(error: TypeORMError) {
     super(error)
   }
