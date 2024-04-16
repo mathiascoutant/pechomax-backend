@@ -7,6 +7,8 @@ import { AuthService } from '../services/auth.service'
 import { Payload } from 'src/types/payload'
 import { IsAuthGuard } from 'src/guards/isAuth.guard'
 import { UpdateUserDto } from '../dto/update-user.dto'
+import { Roles } from 'src/decorators/roles.decorator'
+import { IsRole } from 'src/guards/isRole.guard'
 
 @Controller('users')
 export class UsersController {
@@ -110,7 +112,8 @@ export class UsersController {
     return res.status(HttpStatus.OK).send(user.content)
   }
 
-  @UseGuards(IsAuthGuard)
+  @Roles('Admin')
+  @UseGuards(IsAuthGuard, IsRole)
   @Put('update/:id')
   async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Res() res: FastifyReply) {
     const user = await this.userService.updateOne(id, updateUserDto)
@@ -136,7 +139,8 @@ export class UsersController {
     return res.status(HttpStatus.OK).send(user.content)
   }
 
-  @UseGuards(IsAuthGuard)
+  @Roles('Admin')
+  @UseGuards(IsAuthGuard, IsRole)
   @Delete('delete/:id')
   async deleteUser(@Param('id') id: string, @Res() res: FastifyReply) {
     const affected = await this.userService.deleteOne(id)
