@@ -145,4 +145,18 @@ export class UsersController {
 
     return res.status(HttpStatus.OK).send(affected.content)
   }
+
+  @UseGuards(IsAuthGuard)
+  @Delete('delete/self')
+  async deleteSelf(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    const { id } = req['payload'] as Payload
+
+    const affected = await this.userService.deleteOne(id)
+
+    if (affected.isErr()) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+    }
+
+    return res.status(HttpStatus.OK).send(affected.content)
+  }
 }
