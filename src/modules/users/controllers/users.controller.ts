@@ -103,7 +103,7 @@ export class UsersController {
   @UseGuards(IsAuthGuard)
   @Post('/update/:id')
   async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Res() res: FastifyReply) {
-    const user = await this.userService.update(id, updateUserDto)
+    const user = await this.userService.updateOne(id, updateUserDto)
 
     if (user.isErr()) {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')

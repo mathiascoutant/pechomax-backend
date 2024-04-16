@@ -158,7 +158,7 @@ export class UsersService {
     }
   }
 
-  async update(id: string, userDatas: UpdateUserDto): Promise<Option<number, BaseError>> {
+  async updateOne(id: string, userDatas: UpdateUserDto): Promise<Option<number, BaseError>> {
     try {
       const user = await this.userRepository.update(id, userDatas)
 
