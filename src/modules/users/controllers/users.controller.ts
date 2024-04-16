@@ -121,6 +121,20 @@ export class UsersController {
   }
 
   @UseGuards(IsAuthGuard)
+  @Put('update/self')
+  async updateSelf(@Body() updateUserDto: UpdateUserDto, @Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    const { id } = req['payload'] as Payload
+
+    const user = await this.userService.updateOne(id, updateUserDto)
+
+    if (user.isErr()) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+    }
+
+    return res.status(HttpStatus.OK).send(user.content)
+  }
+
+  @UseGuards(IsAuthGuard)
   @Delete('delete/:id')
   async deleteUser(@Param('id') id: string, @Res() res: FastifyReply) {
     const affected = await this.userService.deleteOne(id)
