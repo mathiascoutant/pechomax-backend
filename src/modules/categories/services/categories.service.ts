@@ -48,4 +48,24 @@ export class CategoriesService {
       }
     }
   }
+
+  async findOne(id: string): Promise<Option<Category, CategoryNotFoundException | BaseError>> {
+    try {
+      const user = await this.categoryRepository.findOne({ where: { id } })
+
+      if (!user) {
+        return Err(new CategoryNotFoundException())
+      }
+
+      return Ok(user)
+    } catch (error) {
+      if (error instanceof TypeORMError) {
+        return Err(new DatabaseInternalError(error))
+      }
+
+      if (error instanceof Error) {
+        return Err(new UnknownError(error))
+      }
+    }
+  }
 }
