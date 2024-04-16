@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Req, Res, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Req, Res, UseGuards } from '@nestjs/common'
 import { UsersService } from '../services/users.service'
 import { CreateUserDto } from '../dto/create-user.dto'
 import { LoginDto } from '../dto/login.dto'
@@ -110,5 +110,17 @@ export class UsersController {
     }
 
     return res.status(HttpStatus.OK).send(user.content)
+  }
+
+  @UseGuards(IsAuthGuard)
+  @Delete('delete/:id')
+  async deleteUser(@Param('id') id: string, @Res() res: FastifyReply) {
+    const affected = await this.userService.deleteOne(id)
+
+    if (affected.isErr()) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+    }
+
+    return res.status(HttpStatus.OK).send(affected.content)
   }
 }
