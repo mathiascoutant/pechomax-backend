@@ -33,4 +33,21 @@ export class UsersController {
 
     return res.status(HttpStatus.OK).send(categoryList.content)
   }
+
+  @Get(':id')
+  async getOne(@Param('id') id: string, @Res() res: FastifyReply) {
+    const category = await this.categoryService.findOne(id)
+
+    if (category.isErr()) {
+      const { error } = category
+
+      if (error.type === 'CategoryNotFoundException') {
+        return res.status(HttpStatus.NOT_FOUND).send(category.error)
+      }
+
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+    }
+
+    return res.status(HttpStatus.OK).send(category.content)
+  }
 }
