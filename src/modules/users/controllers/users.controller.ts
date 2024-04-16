@@ -52,6 +52,13 @@ export class UsersController {
     return res.status(HttpStatus.CREATED).send(login.content.user)
   }
 
+  @Get('auth/logout')
+  async logout(@Res() res: FastifyReply) {
+    res.clearCookie('access_token')
+
+    return res.status(HttpStatus.OK).send('Logged out')
+  }
+
   @UseGuards(IsAuthGuard)
   @Get('self')
   async getSelf(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
