@@ -14,6 +14,7 @@ import { Category } from './entities/category.entity'
 import { Catch } from './entities/catch.entity'
 import * as Joi from 'joi'
 import { UsersModule } from './modules/users/users.module'
+import { CategoriesModule } from './modules/categories/categories.module'
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { UsersModule } from './modules/users/users.module'
       inject: [ConfigService],
     }),
     UsersModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
