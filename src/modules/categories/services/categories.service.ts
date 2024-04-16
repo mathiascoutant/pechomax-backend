@@ -33,4 +33,19 @@ export class CategoriesService {
     }
   }
 
+  async findAll(): Promise<Option<Array<Category>, BaseError>> {
+    try {
+      const categories = await this.categoryRepository.find()
+
+      return Ok(categories)
+    } catch (error) {
+      if (error instanceof TypeORMError) {
+        return Err(new DatabaseInternalError(error))
+      }
+
+      if (error instanceof Error) {
+        return Err(new UnknownError(error))
+      }
+    }
+  }
 }
