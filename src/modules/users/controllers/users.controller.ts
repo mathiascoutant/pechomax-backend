@@ -101,7 +101,7 @@ export class UsersController {
   }
 
   @UseGuards(IsAuthGuard)
-  @Put('/update/:id')
+  @Put('update/:id')
   async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Res() res: FastifyReply) {
     const user = await this.userService.updateOne(id, updateUserDto)
 
