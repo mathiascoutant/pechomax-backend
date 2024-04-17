@@ -8,6 +8,12 @@ import { cors } from 'hono/cors'
 import usersRoute from './routes/users'
 import categoriesRoute from './routes/categories'
 
+if (process.env.NODE_ENV === 'DEV') {
+  const { migrate } = await import('drizzle-orm/node-postgres/migrator')
+
+  await migrate(db, { migrationsFolder: 'migrations/' })
+}
+
 const app = new Hono()
 
 app.use(async (ctx, next) => {

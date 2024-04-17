@@ -16,12 +16,14 @@ COPY ./package.json .
 COPY . .
 
 RUN npm run build
+RUN npm run migration:build
 
 FROM node:21-alpine
 
 WORKDIR /app
 
 COPY --from=build /build/dist ./dist
+COPY --from=build /build/migrations ./migrations
 COPY --from=build /build/package.json .
 COPY --from=dependencies /deps/node_modules ./node_modules
 COPY ./.env .

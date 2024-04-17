@@ -9,6 +9,7 @@ const envSchema = z.object({
   COOKIE_SECRET: z.string(),
   JWT_SECRET: z.string(),
   CORS_ORIGIN: z.string(),
+  NODE_ENV: z.enum(['DEV', 'PROD']),
 })
 
 envSchema.parse(process.env)
