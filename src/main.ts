@@ -5,6 +5,7 @@ import './helpers/env'
 import { db } from './db/init'
 import authRoute from './routes/auth'
 import { cors } from 'hono/cors'
+import usersRoute from './routes/users'
 
 const app = new Hono()
 
@@ -21,6 +22,7 @@ app.use(
 )
 
 app.route('/', authRoute)
+app.route('/', usersRoute)
 
 showRoutes(app)
 
