@@ -3,7 +3,9 @@ import { showRoutes } from 'hono/dev'
 import { serve } from '@hono/node-server'
 import './helpers/env'
 import { db } from './db/init'
+import authRoute from './routes/auth'
 import { cors } from 'hono/cors'
+
 const app = new Hono()
 
 app.use(async (ctx, next) => {
@@ -17,6 +19,9 @@ app.use(
     credentials: true,
   })
 )
+
+app.route('/', authRoute)
+
 showRoutes(app)
 
 serve(

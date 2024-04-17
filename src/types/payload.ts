@@ -1,7 +1,7 @@
-import { UserRoles } from 'src/modules/users/types/utilities'
+import { userRolesEnum } from 'src/db/schema/users'
 
 export interface Payload {
   id: string
-  role: UserRoles
   username: string
+  role: (typeof userRolesEnum.enumValues)[number]
 }
