@@ -26,4 +26,4 @@ COPY --from=build /build/package.json .
 COPY --from=dependencies /deps/node_modules ./node_modules
 COPY ./.env .
 
-CMD npm run start:prod
+CMD npm run start
