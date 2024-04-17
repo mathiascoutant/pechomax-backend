@@ -40,7 +40,7 @@ categoriesRoute.get('/', async (ctx) => {
 })
 
 categoriesRoute.get(
-  ':/id',
+  '/:id',
   zValidator(
     'param',
     z.object({
