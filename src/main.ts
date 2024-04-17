@@ -1,23 +1,28 @@
-import { NestFactory } from '@nestjs/core'
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
-import { AppModule } from './app.module'
-import fastifyCookie from '@fastify/cookie'
-import { ConfigService } from '@nestjs/config'
-import { ValidationPipe } from '@nestjs/common'
+import { Hono } from 'hono'
+import { showRoutes } from 'hono/dev'
+import { serve } from '@hono/node-server'
+import './helpers/env'
+import { db } from './db/init'
+import { cors } from 'hono/cors'
+const app = new Hono()
 
-async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter())
-  const config = app.get(ConfigService)
+app.use(async (ctx, next) => {
+  ctx.set('database', db)
+  await next()
+})
 
-  app.enableCors({
-    origin: config.get('CORS_ORIGIN'),
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
     credentials: true,
   })
-  app.useGlobalPipes(new ValidationPipe())
-  app.register(fastifyCookie, {
-    secret: config.get('COOKIE_SECRET'),
-  })
+)
+showRoutes(app)
 
-  await app.listen(3000, '0.0.0.0')
-}
-bootstrap()
+serve(
+  {
+    fetch: app.fetch,
+    port: 3000,
+  },
+  (info) => console.log(`Listening on http://localhost:${info.port}`)
+)
