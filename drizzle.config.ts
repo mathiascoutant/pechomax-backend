@@ -4,7 +4,7 @@ import { defineConfig } from 'drizzle-kit'
 
 export default defineConfig({
   driver: 'pg',
-  out: './src/drizzle',
+  out: './migrations',
   schema: './src/db/schema',
   dbCredentials: {
     host: process.env.DB_HOST!,
