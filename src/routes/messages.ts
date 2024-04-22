@@ -1,5 +1,5 @@
 import { zValidator } from '@hono/zod-validator'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { messages } from 'src/db/schema/messages'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
@@ -57,10 +57,15 @@ messagesRoute.put(
   ),
   async (ctx) => {
     const db = ctx.get('database')
+    const { id: userId, role } = ctx.get('userPayload')
     const { id } = ctx.req.valid('param')
     const updateMessage = ctx.req.valid('json')
 
-    const messageList = await db.update(messages).set(updateMessage).where(eq(messages.id, id)).returning()
+    const messageList = await db
+      .update(messages)
+      .set(updateMessage)
+      .where(role === 'Admin' ? eq(messages.id, id) : and(eq(messages.id, id), eq(messages.userId, userId)))
+      .returning()
 
     if (messageList.length === 0) {
       return ctx.json({ message: 'Message not found' }, 404)
