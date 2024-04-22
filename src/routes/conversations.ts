@@ -12,7 +12,7 @@ conversationsRoute.get('/', async (ctx) => {
 
   const conversations = await db.query.conversations.findMany()
 
-  ctx.json(conversations)
+  return ctx.json(conversations)
 })
 
 conversationsRoute.get(
@@ -35,7 +35,7 @@ conversationsRoute.get(
       return ctx.json({ message: 'Conversation not found' }, 404)
     }
 
-    ctx.json(conversation)
+    return ctx.json(conversation)
   }
 )
 
@@ -69,7 +69,7 @@ conversationsRoute.post(
 
     const conversation = conversationList[0]
 
-    ctx.json(conversation, 201)
+    return ctx.json(conversation, 201)
   }
 )
 
@@ -112,7 +112,7 @@ conversationsRoute.put(
 
     const conversation = conversationList[0]
 
-    ctx.json(conversation)
+    return ctx.json(conversation)
   }
 )
 
@@ -136,7 +136,7 @@ conversationsRoute.delete('/delete/:id', isAuth(), zValidator('param', z.object(
 
   const conversation = conversationList[0]
 
-  ctx.json(conversation, 200)
+  return ctx.json(conversation, 200)
 })
 
 export default conversationsRoute
