@@ -17,7 +17,7 @@ if (process?.env?.NODE_ENV === 'DEV') {
   await migrate(db, { migrationsFolder: 'migrations/' })
 }
 
-const app = new Hono()
+const app = new HonoVar()
 
 app.use(async (ctx, next) => {
   ctx.set('database', db)
