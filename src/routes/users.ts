@@ -12,11 +12,11 @@ const updateUserDto = zValidator(
     email: z.string().email().optional(),
     password: z.string().min(8).optional(),
     role: z.enum(['User', 'Admin']).optional(),
-    phone_number: z.string().optional(),
-    profile_pic: z.string().optional(),
-    city: z.string().optional(),
-    region: z.string().optional(),
-    zip_code: z.string().optional(),
+    phone_number: z.string().optional().nullable(),
+    profile_pic: z.string().optional().nullable(),
+    city: z.string().optional().nullable(),
+    region: z.string().optional().nullable(),
+    zip_code: z.string().optional().nullable(),
     score: z.number().optional(),
   })
 )
