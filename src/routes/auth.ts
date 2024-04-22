@@ -73,6 +73,10 @@ authRoute.post(
 
     const hashedPassword = await hashPassword(password)
 
+    if (username.includes('@')) {
+      return ctx.json({ message: 'Username cannot contains "@"' }, 400)
+    }
+
     const userList = await db
       .insert(users)
       .values({
@@ -109,17 +113,16 @@ authRoute.post(
   zValidator(
     'json',
     z.object({
-      username: z.string().optional(),
-      email: z.string().email().optional(),
+      credential: z.string(),
       password: z.string().email(),
     })
   ),
   async (ctx) => {
-    const { username, email, password } = ctx.req.valid('json')
+    const { credential, password } = ctx.req.valid('json')
     const db = ctx.get('database')
 
     const user = await db.query.users.findFirst({
-      where: (user, { eq, or }) => or(eq(user.username, username), eq(user.email, email)),
+      where: (user, { eq, or }) => or(eq(user.username, credential), eq(user.email, credential)),
     })
 
     const isMatch = verifyPassword(user.password, password)
