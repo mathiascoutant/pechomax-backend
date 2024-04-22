@@ -73,5 +73,48 @@ conversationsRoute.post(
   }
 )
 
+conversationsRoute.put(
+  '/update/:id',
+  isAuth(),
+  zValidator(
+    'param',
+    z.object({
+      id: z.string(),
+    })
+  ),
+  zValidator(
+    'json',
+    z.object({
+      title: z.string().min(3),
+      categoryId: z.string(),
+    })
+  ),
+  async (ctx) => {
+    const db = ctx.get('database')
+    const { role, id: userId } = ctx.get('userPayload')
+    const { id } = ctx.req.valid('param')
+    const { title, categoryId } = ctx.req.valid('json')
+
+    const conversationList = await db
+      .update(conversations)
+      .set({
+        title,
+        categoryId,
+      })
+      .where(
+        role === 'Admin' ? eq(conversations.id, id) : and(eq(conversations.id, id), eq(conversations.userId, userId))
+      )
+      .returning()
+
+    if (conversationList.length === 0) {
+      return ctx.json({ message: 'Conversation not found' }, 404)
+    }
+
+    const conversation = conversationList[0]
+
+    ctx.json(conversation)
+  }
+)
+
 
 export default conversationsRoute
