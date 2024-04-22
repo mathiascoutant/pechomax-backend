@@ -86,19 +86,19 @@ authRoute.post(
       const { password, ...user } = userList[0]
 
       const payload: Payload = {
-        id: user[0].id,
-        username: user[0].username,
-        role: user[0].role,
+        id: user.id,
+        username: user.username,
+        role: user.role,
       }
 
       const token = await sign(payload, process.env.JWT_SECRET)
 
       await setSignedCookie(ctx, 'access_token', token, process.env.COOKIE_SECRET)
 
-      ctx.json(payload, 201)
+      return ctx.json(payload, 201)
     }
 
-    ctx.json({ message: 'Failed to register' }, 500)
+    return ctx.json({ message: 'Failed to register' }, 500)
   }
 )
 
@@ -133,21 +133,21 @@ authRoute.post(
 
       await setSignedCookie(ctx, 'access_token', token, process.env.COOKIE_SECRET)
 
-      ctx.json(payload, 200)
+      return ctx.json(payload, 200)
     }
 
-    ctx.json({ message: 'Wrong password' }, 401)
+    return ctx.json({ message: 'Wrong password' }, 401)
   }
 )
 
 authRoute.get('/login', isAuth(), async (ctx) => {
   const payload = ctx.get('userPayload')
-  ctx.json(payload, 200)
+  return ctx.json(payload, 200)
 })
 
 authRoute.get('/logout', isAuth(), async (ctx) => {
   deleteCookie(ctx, 'access_token', { path: '/auth' })
-  ctx.text('Logged out', 200)
+  return ctx.text('Logged out', 200)
 })
 
 export default authRoute
