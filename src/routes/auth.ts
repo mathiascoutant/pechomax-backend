@@ -114,7 +114,7 @@ authRoute.post(
     'json',
     z.object({
       credential: z.string(),
-      password: z.string().email(),
+      password: z.string(),
     })
   ),
   async (ctx) => {
