@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { Payload } from 'src/types/payload'
 import { sign } from 'hono/jwt'
 import { isAuth } from 'src/middlewares/isAuth'
+import { env } from 'hono/adapter'
 
 const authRoute = new HonoVar().basePath('/auth')
 
@@ -91,9 +92,11 @@ authRoute.post(
         role: user.role,
       }
 
-      const token = await sign(payload, process.env.JWT_SECRET)
+      const { COOKIE_SECRET, JWT_SECRET } = env(ctx)
 
-      await setSignedCookie(ctx, 'access_token', token, process.env.COOKIE_SECRET)
+      const token = await sign(payload, JWT_SECRET)
+
+      await setSignedCookie(ctx, 'access_token', token, COOKIE_SECRET)
 
       return ctx.json(payload, 201)
     }
@@ -129,9 +132,11 @@ authRoute.post(
         role: user.role,
       }
 
-      const token = await sign(payload, process.env.JWT_SECRET)
+      const { COOKIE_SECRET, JWT_SECRET } = env(ctx)
 
-      await setSignedCookie(ctx, 'access_token', token, process.env.COOKIE_SECRET)
+      const token = await sign(payload, JWT_SECRET)
+
+      await setSignedCookie(ctx, 'access_token', token, COOKIE_SECRET)
 
       return ctx.json(payload, 200)
     }
