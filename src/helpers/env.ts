@@ -1,11 +1,7 @@
 import { z } from 'zod'
 
 const envSchema = z.object({
-  DB_HOST: z.string(),
-  DB_PORT: z.string(),
-  POSTGRES_USER: z.string(),
-  POSTGRES_PASSWORD: z.string(),
-  POSTGRES_DB: z.string(),
+  DB_URL: z.string(),
   COOKIE_SECRET: z.string(),
   JWT_SECRET: z.string(),
   CORS_ORIGIN: z.string(),

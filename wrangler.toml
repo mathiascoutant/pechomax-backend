@@ -1,0 +1,10 @@
+name = "pechomax-backend"
+main = "src/main.ts"
+node_compat = true
+compatibility_date = "2024-04-22"
+
+[vars]
+COOKIE_SECRET = "cookieverysecret"
+CORS_ORIGIN = "http://localhost:5173"
+JWT_SECRET = "jwtverysecret"
+NODE_ENV = "PROD"

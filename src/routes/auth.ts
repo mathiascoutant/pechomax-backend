@@ -1,12 +1,14 @@
 import { zValidator } from '@hono/zod-validator'
 import { deleteCookie, setSignedCookie } from 'hono/cookie'
-import { compare, genSalt, hash } from 'bcrypt'
+// import { compare, genSalt, hash } from 'bcrypt'
 import { users } from 'src/db/schema/users'
 import { HonoVar } from 'src/helpers/hono'
 import { z } from 'zod'
 import { Payload } from 'src/types/payload'
 import { sign } from 'hono/jwt'
 import { isAuth } from 'src/middlewares/isAuth'
+import { hashPassword, verifyPassword } from 'src/helpers/crypt'
+import { env } from 'hono/adapter'
 
 const authRoute = new HonoVar().basePath('/auth')
 
@@ -33,8 +35,7 @@ authRoute.post(
       return ctx.json({ message: 'Admin already exists' }, 400)
     }
 
-    const salt = await genSalt()
-    const hashedPassword = await hash(password, salt)
+    const hashedPassword = await hashPassword(password)
 
     const userList = await db
       .insert(users)
@@ -70,8 +71,7 @@ authRoute.post(
     const { username, email, password } = ctx.req.valid('json')
     const db = ctx.get('database')
 
-    const salt = await genSalt()
-    const hashedPassword = await hash(password, salt)
+    const hashedPassword = await hashPassword(password)
 
     const userList = await db
       .insert(users)
@@ -91,9 +91,11 @@ authRoute.post(
         role: user.role,
       }
 
-      const token = await sign(payload, process.env.JWT_SECRET)
+      const { JWT_SECRET, COOKIE_SECRET } = env(ctx)
 
-      await setSignedCookie(ctx, 'access_token', token, process.env.COOKIE_SECRET)
+      const token = await sign(payload, JWT_SECRET)
+
+      await setSignedCookie(ctx, 'access_token', token, COOKIE_SECRET)
 
       return ctx.json(payload, 201)
     }
@@ -120,7 +122,7 @@ authRoute.post(
       where: (user, { eq, or }) => or(eq(user.username, username), eq(user.email, email)),
     })
 
-    const isMatch = compare(password, user.password)
+    const isMatch = verifyPassword(user.password, password)
 
     if (isMatch) {
       const payload: Payload = {
@@ -129,9 +131,11 @@ authRoute.post(
         role: user.role,
       }
 
-      const token = await sign(payload, process.env.JWT_SECRET)
+      const { JWT_SECRET } = env(ctx)
 
-      await setSignedCookie(ctx, 'access_token', token, process.env.COOKIE_SECRET)
+      const token = await sign(payload, JWT_SECRET)
+
+      await setSignedCookie(ctx, 'access_token', token, JWT_SECRET)
 
       return ctx.json(payload, 200)
     }

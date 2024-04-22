@@ -26,6 +26,8 @@ const usersRoute = new HonoVar().basePath('/users')
 usersRoute.get('/', async (ctx) => {
   const db = ctx.get('database')
 
+  // return ctx.json(db)
+
   const userList = await db.query.users.findMany({
     columns: {
       password: false,
