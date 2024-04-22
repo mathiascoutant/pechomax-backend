@@ -109,7 +109,7 @@ authRoute.post(
     z.object({
       username: z.string().optional(),
       email: z.string().email().optional(),
-      password: z.string().email(),
+      password: z.string(),
     })
   ),
   async (ctx) => {
