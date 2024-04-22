@@ -8,6 +8,7 @@ import { cors } from 'hono/cors'
 import usersRoute from './routes/users'
 import categoriesRoute from './routes/categories'
 import conversationsRoute from './routes/conversations'
+import messagesRoute from './routes/messages'
 
 if (process.env.NODE_ENV === 'DEV') {
   const { migrate } = await import('drizzle-orm/node-postgres/migrator')
@@ -33,6 +34,7 @@ app.route('/', authRoute)
 app.route('/', usersRoute)
 app.route('/', categoriesRoute)
 app.route('/', conversationsRoute)
+app.route('/', messagesRoute)
 
 showRoutes(app)
 
