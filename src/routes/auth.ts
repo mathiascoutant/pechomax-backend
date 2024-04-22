@@ -11,6 +11,52 @@ import { isAuth } from 'src/middlewares/isAuth'
 const authRoute = new HonoVar().basePath('/auth')
 
 authRoute.post(
+  '/init',
+  zValidator(
+    'json',
+    z.object({
+      username: z.string().min(3),
+      email: z.string().email(),
+      password: z.string().min(8),
+    })
+  ),
+  async (ctx) => {
+    const { username, email, password } = ctx.req.valid('json')
+    const db = ctx.get('database')
+
+    const adminList = await db.query.users.findMany({
+      columns: { id: true },
+      where: (user, { eq }) => eq(user.role, 'Admin'),
+    })
+
+    if (adminList.length > 0) {
+      return ctx.json({ message: 'Admin already exists' }, 400)
+    }
+
+    const salt = await genSalt()
+    const hashedPassword = await hash(password, salt)
+
+    const userList = await db
+      .insert(users)
+      .values({
+        username,
+        email,
+        password: hashedPassword,
+        role: 'Admin',
+      })
+      .returning()
+
+    if (userList.length > 0) {
+      const { password, ...user } = userList[0]
+
+      return ctx.json(user, 201)
+    }
+
+    return ctx.json({ message: 'Failed to register' }, 500)
+  }
+)
+
+authRoute.post(
   '/register',
   zValidator(
     'json',
