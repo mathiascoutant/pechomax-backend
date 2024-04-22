@@ -116,5 +116,27 @@ conversationsRoute.put(
   }
 )
 
+conversationsRoute.delete('/delete/:id', isAuth(), zValidator('param', z.object({ id: z.string() })), async (ctx) => {
+  const db = ctx.get('database')
+  const { id } = ctx.req.valid('param')
+  const { role, id: userId } = ctx.get('userPayload')
+
+  const conversationList = await db
+    .delete(conversations)
+    .where(
+      role === 'Admin' ? eq(conversations.id, id) : and(eq(conversations.id, id), eq(conversations.userId, userId))
+    )
+    .returning({
+      id: conversations.id,
+    })
+
+  if (conversationList.length === 0) {
+    return ctx.json({ message: 'Conversation not found' }, 404)
+  }
+
+  const conversation = conversationList[0]
+
+  ctx.json(conversation, 200)
+})
 
 export default conversationsRoute
