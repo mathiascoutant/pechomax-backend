@@ -1,6 +1,6 @@
 import { zValidator } from '@hono/zod-validator'
 import { eq, getTableColumns } from 'drizzle-orm'
-import { users } from 'src/db/schema/users'
+import { userRolesEnum, users } from 'src/db/schema/users'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
@@ -77,6 +77,34 @@ usersRoute.get(
     }
 
     return ctx.json(user, 200)
+  }
+)
+
+usersRoute.post(
+  '/create',
+  isAuth('Admin'),
+  zValidator(
+    'json',
+    z.object({
+      username: z.string().min(3),
+      email: z.string().email(),
+      password: z.string().min(8),
+      role: z.enum(userRolesEnum.enumValues),
+    })
+  ),
+  async (ctx) => {
+    const db = ctx.get('database')
+    const { username, email, password, role } = ctx.req.valid('json')
+
+    const userList = await db.insert(users).values({ username, email, password, role }).returning()
+
+    if (userList.length === 0) {
+      return ctx.json({ message: 'Internal server error' }, 500)
+    }
+
+    const user = userList[0]
+
+    return ctx.json(user, 201)
   }
 )
 
