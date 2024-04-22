@@ -72,4 +72,25 @@ messagesRoute.put(
   }
 )
 
+messagesRoute.delete('/delete/:id', isAuth(), zValidator('param', z.object({ id: z.string() })), async (ctx) => {
+  const db = ctx.get('database')
+  const { id: userId, role } = ctx.get('userPayload')
+  const { id } = ctx.req.valid('param')
+
+  const messageList = await db
+    .delete(messages)
+    .where(role === 'Admin' ? eq(messages.id, id) : and(eq(messages.id, id), eq(messages.userId, userId)))
+    .returning({
+      id: messages.id,
+    })
+
+  if (messageList.length === 0) {
+    return ctx.json({ message: 'Message not found' }, 404)
+  }
+
+  const message = messageList[0]
+
+  return ctx.json(message)
+})
+
 export default messagesRoute
