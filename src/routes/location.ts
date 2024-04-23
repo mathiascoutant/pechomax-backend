@@ -1,5 +1,5 @@
 import { zValidator } from '@hono/zod-validator'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { locations } from 'src/db/schema/locations'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
@@ -100,5 +100,24 @@ locationsRoute.put(
     return ctx.json(locationItem)
   }
 )
+
+locationsRoute.delete('/delete/:id', isAuth(), zValidator('param', z.object({ id: z.string() })), async (ctx) => {
+  const db = ctx.get('database')
+  const { id } = ctx.req.valid('param')
+  const { id: userId, role } = ctx.get('userPayload')
+
+  const locationList = await db
+    .delete(locations)
+    .where(role === 'Admin' ? eq(locations.id, id) : and(eq(locations.id, id), eq(locations.userId, userId)))
+    .returning({
+      id: locations.id,
+    })
+
+  if (locationList.length === 0) {
+    return ctx.json({ message: 'Location not found' }, 404)
+  }
+
+  return ctx.json({ message: 'Location deleted' })
+})
 
 export default locationsRoute
