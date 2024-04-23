@@ -5,22 +5,6 @@ import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
 
-const updateUserDto = zValidator(
-  'json',
-  z.object({
-    username: z.string().min(3).optional(),
-    email: z.string().email().optional(),
-    password: z.string().min(8).optional(),
-    role: z.enum(['User', 'Admin']).optional(),
-    phone_number: z.string().optional(),
-    profile_pic: z.string().optional(),
-    city: z.string().optional(),
-    region: z.string().optional(),
-    zip_code: z.string().optional(),
-    score: z.number().optional(),
-  })
-)
-
 const usersRoute = new HonoVar().basePath('/users')
 
 usersRoute.get('/', async (ctx) => {
@@ -108,23 +92,50 @@ usersRoute.post(
   }
 )
 
-usersRoute.put('/update/self', isAuth(), updateUserDto, async (ctx) => {
-  const payload = ctx.get('userPayload')
-  const db = ctx.get('database')
-  const updateDatas = ctx.req.valid('json')
+usersRoute.put(
+  '/update/self',
+  isAuth(),
+  zValidator(
+    'json',
+    z.object({
+      username: z.string().min(3).optional(),
+      email: z.string().email().optional(),
+      password: z.string().min(8).optional(),
+      phone_number: z.string().optional().nullable(),
+      profile_pic: z.string().optional().nullable(),
+      city: z.string().optional().nullable(),
+      region: z.string().optional().nullable(),
+      zip_code: z.string().optional().nullable(),
+    })
+  ),
+  async (ctx) => {
+    const payload = ctx.get('userPayload')
+    const db = ctx.get('database')
+    const updateDatas = ctx.req.valid('json')
 
-  const { password, ...colWithoutPassword } = getTableColumns(users)
+    const { password, ...colWithoutPassword } = getTableColumns(users)
 
-  const userList = await db.update(users).set(updateDatas).where(eq(users.id, payload.id)).returning(colWithoutPassword)
+    return ctx.json({ payload, updateDatas })
 
-  if (userList.length === 0) {
-    return ctx.json({ message: 'User not found' }, 404)
+    try {
+      const userList = await db
+        .update(users)
+        .set(updateDatas)
+        .where(eq(users.id, payload.id))
+        .returning(colWithoutPassword)
+
+      if (userList.length === 0) {
+        return ctx.json({ message: 'User not found' }, 404)
+      }
+
+      const user = userList[0]
+
+      return ctx.json({ user }, 200)
+    } catch (err) {
+      return ctx.json({ err })
+    }
   }
-
-  const user = userList[0]
-
-  return ctx.json(user, 200)
-})
+)
 
 usersRoute.put(
   '/update/:id',
@@ -135,7 +146,21 @@ usersRoute.put(
       id: z.string(),
     })
   ),
-  updateUserDto,
+  zValidator(
+    'json',
+    z.object({
+      username: z.string().min(3).optional(),
+      email: z.string().email().optional(),
+      password: z.string().min(8).optional(),
+      role: z.enum(['User', 'Admin']).optional(),
+      phone_number: z.string().optional(),
+      profile_pic: z.string().optional(),
+      city: z.string().optional(),
+      region: z.string().optional(),
+      zip_code: z.string().optional(),
+      score: z.number().optional(),
+    })
+  ),
   async (ctx) => {
     const db = ctx.get('database')
     const { id } = ctx.req.valid('param')
