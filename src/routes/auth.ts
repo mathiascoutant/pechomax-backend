@@ -134,11 +134,11 @@ authRoute.post(
         role: user.role,
       }
 
-      const { JWT_SECRET } = env(ctx)
+      const { JWT_SECRET, COOKIE_SECRET } = env(ctx)
 
       const token = await sign(payload, JWT_SECRET)
 
-      await setSignedCookie(ctx, 'access_token', token, JWT_SECRET)
+      await setSignedCookie(ctx, 'access_token', token, COOKIE_SECRET)
 
       return ctx.json(payload, 200)
     }
