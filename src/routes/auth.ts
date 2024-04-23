@@ -110,17 +110,16 @@ authRoute.post(
   zValidator(
     'json',
     z.object({
-      username: z.string().optional(),
-      email: z.string().email().optional(),
+      credential: z.string().optional(),
       password: z.string(),
     })
   ),
   async (ctx) => {
-    const { username, email, password } = ctx.req.valid('json')
+    const { credential, password } = ctx.req.valid('json')
     const db = ctx.get('database')
 
     const user = await db.query.users.findFirst({
-      where: (user, { eq, or }) => or(eq(user.username, username), eq(user.email, email)),
+      where: (user, { eq, or }) => or(eq(user.username, credential), eq(user.email, credential)),
     })
 
     if (!user) {
