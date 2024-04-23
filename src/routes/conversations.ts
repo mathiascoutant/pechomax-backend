@@ -10,7 +10,12 @@ const conversationsRoute = new HonoVar().basePath('/conversations')
 conversationsRoute.get('/', async (ctx) => {
   const db = ctx.get('database')
 
-  const conversations = await db.query.conversations.findMany()
+  const conversations = await db.query.conversations.findMany({
+    with: {
+      messages: true,
+      user: true,
+    },
+  })
 
   return ctx.json(conversations)
 })
@@ -29,6 +34,10 @@ conversationsRoute.get(
 
     const conversation = await db.query.conversations.findFirst({
       where: (conv, { eq }) => eq(conv.id, id),
+      with: {
+        messages: true,
+        user: true,
+      },
     })
 
     if (!conversation) {
