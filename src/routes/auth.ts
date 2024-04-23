@@ -125,6 +125,10 @@ authRoute.post(
       where: (user, { eq, or }) => or(eq(user.username, credential), eq(user.email, credential)),
     })
 
+    if (!user) {
+      return ctx.json({ message: 'User not found' }, 404)
+    }
+
     const isMatch = verifyPassword(user.password, password)
 
     if (isMatch) {
