@@ -1,5 +1,8 @@
 import { zValidator } from '@hono/zod-validator'
+import { and, eq } from 'drizzle-orm'
+import { catches } from 'src/db/schema/catches'
 import { HonoVar } from 'src/helpers/hono'
+import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
 
 const catchesRoute = new HonoVar().basePath('/catches')
@@ -124,5 +127,24 @@ catchesRoute.put(
     return ctx.json(catchItem)
   }
 )
+
+catchesRoute.delete('/delete/:id', isAuth(), zValidator('param', z.object({ id: z.string() })), async (ctx) => {
+  const db = ctx.get('database')
+  const { id } = ctx.req.valid('param')
+  const { id: userId, role } = ctx.get('userPayload')
+
+  const catchList = await db
+    .delete(catches)
+    .where(role === 'Admin' ? eq(catches.id, id) : and(eq(catches.id, id), eq(catches.userId, userId)))
+    .returning({
+      id: catches.id,
+    })
+
+  if (catchList.length === 0) {
+    return ctx.json({ message: 'Catch not found' }, 404)
+  }
+
+  return ctx.json({ message: 'Catch deleted' })
+})
 
 export default catchesRoute
