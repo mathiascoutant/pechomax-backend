@@ -1,14 +1,14 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import pkg from 'pg'
-import { users } from './schema/users'
-import { speciesLocation } from './schema/speciesLocation'
-import { species } from './schema/species'
-import { messages } from './schema/messages'
-import { locations } from './schema/locations'
-import { levels } from './schema/levels'
-import { conversations } from './schema/conversations'
-import { categories } from './schema/categories'
-import { catches } from './schema/catches'
+import * as users from './schema/users'
+import * as speciesLocation from './schema/speciesLocation'
+import * as species from './schema/species'
+import * as messages from './schema/messages'
+import * as locations from './schema/locations'
+import * as levels from './schema/levels'
+import * as conversations from './schema/conversations'
+import * as categories from './schema/categories'
+import * as catches from './schema/catches'
 const { Client } = pkg
 
 const client = new Client({
@@ -21,7 +21,17 @@ const client = new Client({
 
 await client.connect()
 export const db = drizzle(client, {
-  schema: { users, speciesLocation, species, messages, locations, levels, conversations, categories, catches },
+  schema: {
+    ...users,
+    ...speciesLocation,
+    ...species,
+    ...messages,
+    ...locations,
+    ...levels,
+    ...conversations,
+    ...categories,
+    ...catches,
+  },
 })
 
 export type DbType = typeof db
