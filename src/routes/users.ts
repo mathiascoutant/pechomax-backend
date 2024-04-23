@@ -108,6 +108,24 @@ usersRoute.post(
   }
 )
 
+usersRoute.put('/update/self', isAuth(), updateUserDto, async (ctx) => {
+  const payload = ctx.get('userPayload')
+  const db = ctx.get('database')
+  const updateDatas = ctx.req.valid('json')
+
+  const { password, ...colWithoutPassword } = getTableColumns(users)
+
+  const userList = await db.update(users).set(updateDatas).where(eq(users.id, payload.id)).returning(colWithoutPassword)
+
+  if (userList.length === 0) {
+    return ctx.json({ message: 'User not found' }, 404)
+  }
+
+  const user = userList[0]
+
+  return ctx.json(user, 200)
+})
+
 usersRoute.put(
   '/update/:id',
   isAuth('Admin'),
@@ -136,24 +154,6 @@ usersRoute.put(
     return ctx.json(user, 200)
   }
 )
-
-usersRoute.put('/update/self', isAuth(), updateUserDto, async (ctx) => {
-  const payload = ctx.get('userPayload')
-  const db = ctx.get('database')
-  const updateDatas = ctx.req.valid('json')
-
-  const { password, ...colWithoutPassword } = getTableColumns(users)
-
-  const userList = await db.update(users).set(updateDatas).where(eq(users.id, payload.id)).returning(colWithoutPassword)
-
-  if (userList.length === 0) {
-    return ctx.json({ message: 'User not found' }, 404)
-  }
-
-  const user = userList[0]
-
-  return ctx.json(user, 200)
-})
 
 usersRoute.delete('/delete/:id', zValidator('param', z.object({ id: z.string() })), isAuth(), async (ctx) => {
   const db = ctx.get('database')
