@@ -50,7 +50,7 @@ catchesRoute.post(
       speciesId: z.string(),
       localisation: z.string(),
       description: z.string(),
-      date: z.date(),
+      date: z.string(),
     })
   ),
   async (ctx) => {
@@ -67,10 +67,16 @@ catchesRoute.post(
       return ctx.json({ message: 'Species not found' }, 404)
     }
 
+    const isDateCorrect = new Date(date).toISOString() === date
+
+    if (!isDateCorrect) {
+      return ctx.json({ message: 'Invalid date' }, 400)
+    }
+
     const catchList = await db
       .insert(catches)
       .values({
-        date: date.toISOString(),
+        date,
         length,
         weight,
         localisation,
@@ -103,7 +109,7 @@ catchesRoute.put(
       weight: z.string().optional(),
       localisation: z.string().optional(),
       description: z.string().optional(),
-      date: z.date().optional(),
+      date: z.string().optional(),
     })
   ),
   async (ctx) => {
@@ -112,9 +118,15 @@ catchesRoute.put(
     const { id } = ctx.req.valid('param')
     const { id: userId, role } = ctx.get('userPayload')
 
+    const isDateCorrect = new Date(date).toISOString() === date
+
+    if (!isDateCorrect) {
+      return ctx.json({ message: 'Invalid date' }, 400)
+    }
+
     const catchList = await db
       .update(catches)
-      .set({ date: date.toISOString(), description, length, weight, localisation })
+      .set({ date, description, length, weight, localisation })
       .where(role === 'Admin' ? eq(catches.id, id) : and(eq(catches.id, id), eq(catches.userId, userId)))
       .returning()
 
