@@ -87,4 +87,19 @@ speciesRoute.put(
   }
 )
 
+speciesRoute.delete('/delete/:id', isAuth('Admin'), zValidator('param', z.object({ id: z.string() })), async (ctx) => {
+  const db = ctx.get('database')
+  const { id } = ctx.req.valid('param')
+
+  const speciesList = await db.delete(species).where(eq(species.id, id)).returning({
+    id: species.id,
+  })
+
+  if (speciesList.length === 0) {
+    return ctx.json({ message: 'Species not found' }, 404)
+  }
+
+  return ctx.json({ message: 'Species deleted' })
+})
+
 export default speciesRoute
