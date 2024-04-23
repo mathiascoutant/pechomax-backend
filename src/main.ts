@@ -27,7 +27,7 @@ app.use(async (ctx, next) => {
 
 app.use(
   cors({
-    origin: (_, ctx) => env(ctx)['ORIGIN'],
+    origin: (_, ctx) => env(ctx)['CORS_ORIGIN'],
     credentials: true,
   })
 )
