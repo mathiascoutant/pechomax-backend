@@ -89,4 +89,40 @@ catchesRoute.post(
   }
 )
 
+catchesRoute.put(
+  '/update/:id',
+  isAuth(),
+  zValidator('param', z.object({ id: z.string() })),
+  zValidator(
+    'json',
+    z.object({
+      length: z.string(),
+      weight: z.string(),
+      localisation: z.string(),
+      description: z.string(),
+      date: z.date(),
+    })
+  ),
+  async (ctx) => {
+    const db = ctx.get('database')
+    const { date, description, length, localisation, weight } = ctx.req.valid('json')
+    const { id } = ctx.req.valid('param')
+    const { id: userId, role } = ctx.get('userPayload')
+
+    const catchList = await db
+      .update(catches)
+      .set({ date: date.toISOString(), description, length, weight, localisation })
+      .where(role === 'Admin' ? eq(catches.id, id) : and(eq(catches.id, id), eq(catches.userId, userId)))
+      .returning()
+
+    if (catchList.length === 0) {
+      return ctx.json({ message: 'Catch not found' }, 404)
+    }
+
+    const catchItem = catchList[0]
+
+    return ctx.json(catchItem)
+  }
+)
+
 export default catchesRoute
