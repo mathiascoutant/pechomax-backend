@@ -1,4 +1,5 @@
 import { zValidator } from '@hono/zod-validator'
+import { eq } from 'drizzle-orm'
 import { locations } from 'src/db/schema/locations'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
@@ -62,6 +63,36 @@ locationsRoute.post(
 
     if (locationList.length === 0) {
       return ctx.json({ message: 'Failed to create location' }, 500)
+    }
+
+    const locationItem = locationList[0]
+
+    return ctx.json(locationItem)
+  }
+)
+
+locationsRoute.put(
+  '/update/:id',
+  isAuth(),
+  zValidator('param', z.object({ id: z.string() })),
+  zValidator(
+    'json',
+    z.object({
+      longitude: z.string().optional(),
+      latitude: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    })
+  ),
+  async (ctx) => {
+    const db = ctx.get('database')
+    const { id } = ctx.req.valid('param')
+    const updateDatas = ctx.req.valid('json')
+
+    const locationList = await db.update(locations).set(updateDatas).where(eq(locations.id, id)).returning()
+
+    if (locationList.length === 0) {
+      return ctx.json({ message: 'Failed to update location' }, 500)
     }
 
     const locationItem = locationList[0]
