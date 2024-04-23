@@ -1,5 +1,7 @@
 import { zValidator } from '@hono/zod-validator'
+import { species } from 'src/db/schema/species'
 import { HonoVar } from 'src/helpers/hono'
+import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
 
 const speciesRoute = new HonoVar().basePath('species')
@@ -33,6 +35,32 @@ speciesRoute.get(
     }
 
     return ctx.json(species)
+  }
+)
+
+speciesRoute.post(
+  '/create',
+  isAuth('Admin'),
+  zValidator(
+    'json',
+    z.object({
+      name: z.string(),
+      pointValue: z.number(),
+    })
+  ),
+  async (ctx) => {
+    const db = ctx.get('database')
+    const { name, pointValue } = ctx.req.valid('json')
+
+    const speciesList = await db.insert(species).values({ name, pointValue }).returning()
+
+    if (speciesList.length === 0) {
+      return ctx.json({ message: 'Failed to create species' }, 500)
+    }
+
+    const speciesItem = speciesList[0]
+
+    return ctx.json(speciesItem)
   }
 )
 
