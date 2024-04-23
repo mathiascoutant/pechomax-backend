@@ -36,4 +36,57 @@ catchesRoute.get('/:id', zValidator('param', z.object({ id: z.string() })), asyn
   return ctx.json(catchItem)
 })
 
+catchesRoute.post(
+  '/create',
+  isAuth(),
+  zValidator(
+    'json',
+    z.object({
+      length: z.string(),
+      weight: z.string(),
+      speciesId: z.string(),
+      localisation: z.string(),
+      description: z.string(),
+      date: z.date(),
+    })
+  ),
+  async (ctx) => {
+    const db = ctx.get('database')
+    const { date, description, length, localisation, speciesId, weight } = ctx.req.valid('json')
+    const { id } = ctx.get('userPayload')
+
+    const species = await db.query.species.findFirst({
+      where: (species, { eq }) => eq(species.id, speciesId),
+      columns: { id: true, pointValue: true },
+    })
+
+    if (!species) {
+      return ctx.json({ message: 'Species not found' }, 404)
+    }
+
+    const catchList = await db
+      .insert(catches)
+      .values({
+        date: date.toISOString(),
+        length,
+        weight,
+        localisation,
+        pictures: [],
+        pointValue: species.pointValue * length.length * weight.length,
+        userId: id,
+        description,
+        speciesId,
+      })
+      .returning()
+
+    if (catchList.length === 0) {
+      return ctx.json({ message: 'Failed to create catch' }, 500)
+    }
+
+    const catchItem = catchList[0]
+
+    return ctx.json(catchItem)
+  }
+)
+
 export default catchesRoute
