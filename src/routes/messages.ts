@@ -78,8 +78,8 @@ messagesRoute.put(
   zValidator(
     'json',
     z.object({
-      content: z.string(),
-      pictures: z.string().array(),
+      content: z.string().optional(),
+      pictures: z.string().array().optional(),
     })
   ),
   async (ctx) => {
