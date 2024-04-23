@@ -94,8 +94,8 @@ conversationsRoute.put(
   zValidator(
     'json',
     z.object({
-      title: z.string().min(3),
-      categoryId: z.string(),
+      title: z.string().min(3).optional(),
+      categoryId: z.string().optional(),
     })
   ),
   async (ctx) => {
