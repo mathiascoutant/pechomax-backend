@@ -108,7 +108,7 @@ catchesRoute.put(
       length: z.string().optional(),
       weight: z.string().optional(),
       localisation: z.string().optional(),
-      description: z.string().optional(),
+      description: z.string().optional().nullable(),
       date: z.string().optional(),
     })
   ),
