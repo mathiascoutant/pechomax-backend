@@ -14,6 +14,7 @@ import catchesRoute from './routes/catches'
 import speciesRoute from './routes/species'
 import locationsRoute from './routes/location'
 import speciesLocationRoute from './routes/speciesLocation'
+import levelsRoute from './routes/levels'
 
 if (process?.env?.NODE_ENV === 'DEV') {
   const { migrate } = await import('drizzle-orm/node-postgres/migrator')
@@ -44,6 +45,7 @@ app.route('/', catchesRoute)
 app.route('/', speciesRoute)
 app.route('/', locationsRoute)
 app.route('/', speciesLocationRoute)
+app.route('/', levelsRoute)
 
 showRoutes(app)
 
