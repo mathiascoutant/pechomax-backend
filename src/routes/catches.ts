@@ -99,11 +99,11 @@ catchesRoute.put(
   zValidator(
     'json',
     z.object({
-      length: z.string(),
-      weight: z.string(),
-      localisation: z.string(),
-      description: z.string(),
-      date: z.date(),
+      length: z.string().optional(),
+      weight: z.string().optional(),
+      localisation: z.string().optional(),
+      description: z.string().optional(),
+      date: z.date().optional(),
     })
   ),
   async (ctx) => {
