@@ -90,4 +90,17 @@ levelsRoute.put(
   }
 )
 
+levelsRoute.delete('/delete/:id', zValidator('param', z.object({ id: z.string() })), async (ctx) => {
+  const db = ctx.get('database')
+  const { id } = ctx.req.valid('param')
+
+  const levelList = await db.delete(levels).where(eq(levels.id, id)).returning({ id: levels.id })
+
+  if (levelList.length === 0) {
+    return ctx.json({ message: 'Failed to delete level' }, 500)
+  }
+
+  return ctx.json(levelList[0], 200)
+})
+
 export default levelsRoute
