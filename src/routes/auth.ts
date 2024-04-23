@@ -154,7 +154,7 @@ authRoute.get('/login', isAuth(), async (ctx) => {
 })
 
 authRoute.get('/logout', isAuth(), async (ctx) => {
-  deleteCookie(ctx, 'access_token', { path: '/auth' })
+  deleteCookie(ctx, 'access_token')
   return ctx.text('Logged out', 200)
 })
 
