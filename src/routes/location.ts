@@ -81,7 +81,7 @@ locationsRoute.put(
       longitude: z.string().optional(),
       latitude: z.string().optional(),
       name: z.string().optional(),
-      description: z.string().optional(),
+      description: z.string().optional().nullable(),
     })
   ),
   async (ctx) => {
