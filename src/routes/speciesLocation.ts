@@ -95,4 +95,13 @@ speciesLocationRoute.put(
   }
 )
 
+speciesLocationRoute.delete('/delete/:id', zValidator('param', z.object({ id: z.string() })), async (ctx) => {
+  const db = ctx.get('database')
+  const { id } = ctx.req.valid('param')
+
+  const speciesLocationList = await db.delete(speciesLocation).where(eq(speciesLocation.id, id))
+
+  return ctx.json(speciesLocationList)
+})
+
 export default speciesLocationRoute
