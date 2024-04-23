@@ -115,8 +115,6 @@ usersRoute.put(
 
     const { password, ...colWithoutPassword } = getTableColumns(users)
 
-    return ctx.json({ payload, updateDatas })
-
     try {
       const userList = await db
         .update(users)
