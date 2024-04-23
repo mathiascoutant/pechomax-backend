@@ -39,6 +39,33 @@ messagesRoute.get(
   }
 )
 
+messagesRoute.post(
+  '/create',
+  isAuth(),
+  zValidator(
+    'json',
+    z.object({
+      conversationId: z.string(),
+      content: z.string(),
+    })
+  ),
+  async (ctx) => {
+    const db = ctx.get('database')
+    const { conversationId, content } = ctx.req.valid('json')
+    const { id: userId } = ctx.get('userPayload')
+
+    const messageList = await db.insert(messages).values({ conversationId, content, userId, pictures: [] }).returning()
+
+    if (messageList.length === 0) {
+      return ctx.json({ message: 'Failed to create message' }, 500)
+    }
+
+    const message = messageList[0]
+
+    return ctx.json(message)
+  }
+)
+
 messagesRoute.put(
   '/update/:id',
   isAuth(),
