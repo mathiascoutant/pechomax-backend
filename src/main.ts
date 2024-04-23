@@ -11,6 +11,7 @@ import messagesRoute from './routes/messages'
 import { HonoVar } from './helpers/hono'
 import { env } from 'hono/adapter'
 import catchesRoute from './routes/catches'
+import speciesRoute from './routes/species'
 
 if (process?.env?.NODE_ENV === 'DEV') {
   const { migrate } = await import('drizzle-orm/node-postgres/migrator')
@@ -38,6 +39,7 @@ app.route('/', categoriesRoute)
 app.route('/', conversationsRoute)
 app.route('/', messagesRoute)
 app.route('/', catchesRoute)
+app.route('/', speciesRoute)
 
 showRoutes(app)
 
