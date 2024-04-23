@@ -52,9 +52,13 @@ locationsRoute.post(
   ),
   async (ctx) => {
     const db = ctx.get('database')
+    const { id } = ctx.get('userPayload')
     const { longitude, latitude, name, description } = ctx.req.valid('json')
 
-    const locationList = await db.insert(locations).values({ longitude, latitude, name, description }).returning()
+    const locationList = await db
+      .insert(locations)
+      .values({ longitude, latitude, name, description, userId: id })
+      .returning()
 
     if (locationList.length === 0) {
       return ctx.json({ message: 'Failed to create location' }, 500)
