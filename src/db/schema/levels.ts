@@ -7,7 +7,7 @@ export const levels = pgTable('levels', {
   title: text('title').unique().notNull(),
   value: integer('value').unique().notNull(),
   start: integer('start').notNull(),
-  score: integer('score').notNull(),
+  end: integer('end').notNull(),
 })
 
 export const levelsRelations = relations(levels, ({ many }) => ({
