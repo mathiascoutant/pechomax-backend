@@ -88,8 +88,13 @@ locationsRoute.put(
     const db = ctx.get('database')
     const { id } = ctx.req.valid('param')
     const updateDatas = ctx.req.valid('json')
+    const { id: userId, role } = ctx.get('userPayload')
 
-    const locationList = await db.update(locations).set(updateDatas).where(eq(locations.id, id)).returning()
+    const locationList = await db
+      .update(locations)
+      .set(updateDatas)
+      .where(role === 'Admin' ? eq(locations.id, id) : and(eq(locations.id, id), eq(locations.userId, userId)))
+      .returning()
 
     if (locationList.length === 0) {
       return ctx.json({ message: 'Failed to update location' }, 500)
