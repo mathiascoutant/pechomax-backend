@@ -1,4 +1,5 @@
 import { zValidator } from '@hono/zod-validator'
+import { speciesLocation } from 'src/db/schema/speciesLocation'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
@@ -34,6 +35,31 @@ speciesLocationRoute.get(
     }
 
     return ctx.json(speciesLocation)
+  }
+)
+
+speciesLocationRoute.post(
+  '/create',
+  zValidator(
+    'json',
+    z.object({
+      speciesId: z.string(),
+      locationId: z.string(),
+    })
+  ),
+  async (ctx) => {
+    const db = ctx.get('database')
+    const { speciesId, locationId } = ctx.req.valid('json')
+
+    const speciesLocationList = await db.insert(speciesLocation).values({ speciesId, locationId }).returning()
+
+    if (speciesLocationList.length === 0) {
+      return ctx.json({ message: 'Failed to create speciesLocation' }, 500)
+    }
+
+    const speciesLocationItem = speciesLocationList[0]
+
+    return ctx.json(speciesLocationItem)
   }
 )
 
