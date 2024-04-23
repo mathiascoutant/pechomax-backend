@@ -1,4 +1,5 @@
 import { zValidator } from '@hono/zod-validator'
+import { levels } from 'src/db/schema/levels'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
@@ -27,5 +28,38 @@ levelsRoute.get('/:id', zValidator('param', z.object({ id: z.string() })), async
 
   return ctx.json(level, 200)
 })
+
+levelsRoute.post(
+  '/create',
+  zValidator(
+    'json',
+    z.object({
+      title: z.string(),
+      value: z.number(),
+      start: z.number(),
+      end: z.number(),
+    })
+  ),
+  async (ctx) => {
+    const db = ctx.get('database')
+    const { title, value, start, end } = ctx.req.valid('json')
+
+    const levelList = await db
+      .insert(levels)
+      .values({
+        title,
+        value,
+        start,
+        end,
+      })
+      .returning()
+
+    if (levelList.length === 0) {
+      return ctx.json({ message: 'Failed to create level' }, 500)
+    }
+
+    return ctx.json(levelList[0], 201)
+  }
+)
 
 export default levelsRoute
