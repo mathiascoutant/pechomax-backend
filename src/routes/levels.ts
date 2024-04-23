@@ -1,4 +1,5 @@
 import { zValidator } from '@hono/zod-validator'
+import { eq } from 'drizzle-orm'
 import { levels } from 'src/db/schema/levels'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
@@ -59,6 +60,33 @@ levelsRoute.post(
     }
 
     return ctx.json(levelList[0], 201)
+  }
+)
+
+levelsRoute.put(
+  '/update/:id',
+  zValidator('param', z.object({ id: z.string() })),
+  zValidator(
+    'json',
+    z.object({
+      title: z.string().optional(),
+      value: z.number().optional(),
+      start: z.number().optional(),
+      end: z.number().optional(),
+    })
+  ),
+  async (ctx) => {
+    const db = ctx.get('database')
+    const { id } = ctx.req.valid('param')
+    const updateDatas = ctx.req.valid('json')
+
+    const levelList = await db.update(levels).set(updateDatas).where(eq(levels.id, id)).returning()
+
+    if (levelList.length === 0) {
+      return ctx.json({ message: 'Failed to update level' }, 500)
+    }
+
+    return ctx.json(levelList[0], 200)
   }
 )
 
