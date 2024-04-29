@@ -1,6 +1,7 @@
 import { zValidator } from '@hono/zod-validator'
 import { and, eq } from 'drizzle-orm'
 import { messages } from 'src/db/schema/messages'
+import { uploadMessage } from 'src/helpers/firebase'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
@@ -43,18 +44,22 @@ messagesRoute.post(
   '/create',
   isAuth(),
   zValidator(
-    'json',
+    'form',
     z.object({
       conversationId: z.string(),
       content: z.string(),
+      pictures: z.instanceof(File).optional(),
     })
   ),
   async (ctx) => {
     const db = ctx.get('database')
-    const { conversationId, content } = ctx.req.valid('json')
+    const { conversationId, content, pictures } = ctx.req.valid('form')
     const { id: userId } = ctx.get('userPayload')
 
-    const messageList = await db.insert(messages).values({ conversationId, content, userId, pictures: [] }).returning()
+    const messageList = await db
+      .insert(messages)
+      .values({ conversationId, content, userId, pictures: [await uploadMessage(pictures)] })
+      .returning()
 
     if (messageList.length === 0) {
       return ctx.json({ message: 'Failed to create message' }, 500)
@@ -76,21 +81,21 @@ messagesRoute.put(
     })
   ),
   zValidator(
-    'json',
+    'form',
     z.object({
       content: z.string().optional(),
-      pictures: z.string().array().optional(),
+      pictures: z.instanceof(File).optional(),
     })
   ),
   async (ctx) => {
     const db = ctx.get('database')
     const { id: userId, role } = ctx.get('userPayload')
     const { id } = ctx.req.valid('param')
-    const updateMessage = ctx.req.valid('json')
+    const { pictures, ...updateMessage } = ctx.req.valid('form')
 
     const messageList = await db
       .update(messages)
-      .set(updateMessage)
+      .set({ ...updateMessage, pictures: [await uploadMessage(pictures)] })
       .where(role === 'Admin' ? eq(messages.id, id) : and(eq(messages.id, id), eq(messages.userId, userId)))
       .returning()
 
