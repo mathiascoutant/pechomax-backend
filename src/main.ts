@@ -47,7 +47,9 @@ app.route('/', locationsRoute)
 app.route('/', speciesLocationRoute)
 app.route('/', levelsRoute)
 
-showRoutes(app)
+if (process?.env?.NODE_ENV === 'DEV') {
+  showRoutes(app)
+}
 
 serve(
   {
