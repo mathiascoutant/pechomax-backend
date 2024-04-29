@@ -5,10 +5,11 @@ import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
 
-const categoriesRoute = new HonoVar().basePath('/categories').use(isAuth('Admin'))
+const categoriesRoute = new HonoVar().basePath('/categories')
 
 categoriesRoute.post(
   '/create',
+  isAuth('Admin'),
   zValidator(
     'json',
     z.object({
@@ -65,6 +66,7 @@ categoriesRoute.get(
 
 categoriesRoute.put(
   '/update/:id',
+  isAuth('Admin'),
   zValidator(
     'param',
     z.object({
@@ -94,19 +96,24 @@ categoriesRoute.put(
   }
 )
 
-categoriesRoute.delete('/delete/:id', zValidator('param', z.object({ id: z.string() })), async (ctx) => {
-  const db = ctx.get('database')
-  const { id } = ctx.req.valid('param')
+categoriesRoute.delete(
+  '/delete/:id',
+  isAuth('Admin'),
+  zValidator('param', z.object({ id: z.string() })),
+  async (ctx) => {
+    const db = ctx.get('database')
+    const { id } = ctx.req.valid('param')
 
-  const categoryList = await db.delete(categories).where(eq(categories.id, id)).returning({ id: categories.id })
+    const categoryList = await db.delete(categories).where(eq(categories.id, id)).returning({ id: categories.id })
 
-  if (categoryList.length === 0) {
-    return ctx.json({ message: 'Category not found' }, 404)
+    if (categoryList.length === 0) {
+      return ctx.json({ message: 'Category not found' }, 404)
+    }
+
+    const category = categoryList[0]
+
+    return ctx.json(category, 200)
   }
-
-  const category = categoryList[0]
-
-  return ctx.json(category, 200)
-})
+)
 
 export default categoriesRoute
