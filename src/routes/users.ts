@@ -1,6 +1,7 @@
 import { zValidator } from '@hono/zod-validator'
 import { eq, getTableColumns } from 'drizzle-orm'
 import { userRolesEnum, users } from 'src/db/schema/users'
+import { uploadProfile } from 'src/helpers/firebase'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
@@ -96,13 +97,13 @@ usersRoute.put(
   '/update/self',
   isAuth(),
   zValidator(
-    'json',
+    'form',
     z.object({
       username: z.string().min(3).optional(),
       email: z.string().email().optional(),
       password: z.string().min(8).optional(),
       phoneNumber: z.string().optional().nullable(),
-      profilePic: z.string().optional().nullable(),
+      profilePic: z.instanceof(File).optional().nullable(),
       city: z.string().optional().nullable(),
       region: z.string().optional().nullable(),
       zipCode: z.string().optional().nullable(),
@@ -111,13 +112,15 @@ usersRoute.put(
   async (ctx) => {
     const payload = ctx.get('userPayload')
     const db = ctx.get('database')
-    const updateDatas = ctx.req.valid('json')
+    const { profilePic, ...updateDatas } = ctx.req.valid('form')
+
+    const profilePicUrl = profilePic ? await uploadProfile(profilePic) : undefined
 
     const { password, ...colWithoutPassword } = getTableColumns(users)
 
     const userList = await db
       .update(users)
-      .set(updateDatas)
+      .set({ ...updateDatas, profilePic: profilePicUrl })
       .where(eq(users.id, payload.id))
       .returning(colWithoutPassword)
 
@@ -141,28 +144,34 @@ usersRoute.put(
     })
   ),
   zValidator(
-    'json',
+    'form',
     z.object({
       username: z.string().min(3).optional(),
       email: z.string().email().optional(),
       password: z.string().min(8).optional(),
       role: z.enum(['User', 'Admin']).optional(),
       phoneNumber: z.string().optional().nullable(),
-      profilePic: z.string().optional().nullable(),
+      profilePic: z.instanceof(File).optional().nullable(),
       city: z.string().optional().nullable(),
       region: z.string().optional().nullable(),
       zipCode: z.string().optional().nullable(),
-      score: z.number().optional(),
+      score: z.coerce.number().optional().nullable(),
     })
   ),
   async (ctx) => {
     const db = ctx.get('database')
     const { id } = ctx.req.valid('param')
-    const updateDatas = ctx.req.valid('json')
+    const { profilePic, ...updateDatas } = ctx.req.valid('form')
+
+    const profilePicUrl = profilePic ? await uploadProfile(profilePic) : undefined
 
     const { password, ...colWithoutPassword } = getTableColumns(users)
 
-    const userList = await db.update(users).set(updateDatas).where(eq(users.id, id)).returning(colWithoutPassword)
+    const userList = await db
+      .update(users)
+      .set({ ...updateDatas, profilePic: profilePicUrl })
+      .where(eq(users.id, id))
+      .returning(colWithoutPassword)
 
     if (userList.length === 0) {
       return ctx.json({ message: 'User not found' }, 404)
