@@ -1,6 +1,7 @@
 import { zValidator } from '@hono/zod-validator'
 import { and, eq } from 'drizzle-orm'
 import { catches } from 'src/db/schema/catches'
+import { uploadCatch } from 'src/helpers/firebase'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
@@ -43,7 +44,7 @@ catchesRoute.post(
   '/create',
   isAuth(),
   zValidator(
-    'json',
+    'form',
     z.object({
       length: z.string(),
       weight: z.string(),
@@ -51,11 +52,12 @@ catchesRoute.post(
       localisation: z.string(),
       description: z.string(),
       date: z.string(),
+      pictures: z.instanceof(File).optional(),
     })
   ),
   async (ctx) => {
     const db = ctx.get('database')
-    const { date, description, length, localisation, speciesId, weight } = ctx.req.valid('json')
+    const { date, description, length, localisation, speciesId, weight, pictures } = ctx.req.valid('form')
     const { id } = ctx.get('userPayload')
 
     const species = await db.query.species.findFirst({
@@ -73,6 +75,8 @@ catchesRoute.post(
       return ctx.json({ message: 'Invalid date' }, 400)
     }
 
+    const picturesUrl = pictures ? [await uploadCatch(pictures)] : []
+
     const catchList = await db
       .insert(catches)
       .values({
@@ -80,7 +84,7 @@ catchesRoute.post(
         length,
         weight,
         localisation,
-        pictures: [],
+        pictures: picturesUrl,
         pointValue: species.pointValue * length.length * weight.length,
         userId: id,
         description,
@@ -103,18 +107,19 @@ catchesRoute.put(
   isAuth(),
   zValidator('param', z.object({ id: z.string() })),
   zValidator(
-    'json',
+    'form',
     z.object({
       length: z.string().optional(),
       weight: z.string().optional(),
       localisation: z.string().optional(),
       description: z.string().optional().nullable(),
       date: z.string().optional(),
+      pictures: z.instanceof(File).optional(),
     })
   ),
   async (ctx) => {
     const db = ctx.get('database')
-    const { date, description, length, localisation, weight } = ctx.req.valid('json')
+    const { date, description, length, localisation, weight, pictures } = ctx.req.valid('form')
     const { id } = ctx.req.valid('param')
     const { id: userId, role } = ctx.get('userPayload')
 
@@ -124,9 +129,11 @@ catchesRoute.put(
       return ctx.json({ message: 'Invalid date' }, 400)
     }
 
+    const picturesUrl = pictures ? [await uploadCatch(pictures)] : undefined
+
     const catchList = await db
       .update(catches)
-      .set({ date, description, length, weight, localisation })
+      .set({ date, description, length, weight, localisation, pictures: picturesUrl })
       .where(role === 'Admin' ? eq(catches.id, id) : and(eq(catches.id, id), eq(catches.userId, userId)))
       .returning()
 
