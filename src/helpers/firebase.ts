@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage'
 import { v4 as uuidv4 } from 'uuid'
 
 const firebaseConfig = {
@@ -19,9 +19,9 @@ async function uploadImage(file: File, path: string) {
   const name = uuidv4()
   const extension = file.type.split('/').at(-1)
   const storageRef = ref(storage, `${path}/${name}.${extension}`)
-  const uploadTask = uploadBytesResumable(storageRef, file)
+  const uploadTask = await uploadBytes(storageRef, file)
 
-  return getDownloadURL(uploadTask.snapshot.ref)
+  return getDownloadURL(uploadTask.ref)
 }
 
 export async function uploadProfile(file: File) {
