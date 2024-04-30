@@ -21,7 +21,9 @@ import seedDb from './helpers/seed'
 await migrate(db, { migrationsFolder: 'migrations/' })
 
 if (process?.env?.NODE_ENV === 'DEV') {
-  await seedDb()
+  try {
+    await seedDb()
+  } catch {}
 }
 
 const app = new HonoVar()
