@@ -12,7 +12,7 @@ services:
       - ./parent.nginx.conf:/etc/nginx/templates/default.conf.template
       - type: volume
         source: vite-volume
-        target: /usr/share/nginx/html
+        target: /www/app
         read_only: true
     depends_on:
       - server
