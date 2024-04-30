@@ -19,6 +19,7 @@ async function createUser(role: 'User' | 'Admin', username?: string, password?: 
       password: password ?? faker.internet.password(),
       username: username ?? faker.person.firstName(),
       role: role,
+      profilePic: 'https://thispersondoesnotexist.com/',
     })
     .returning()
 
