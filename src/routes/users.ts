@@ -127,6 +127,10 @@ usersRoute.put(
     const db = ctx.get('database')
     const { profilePic, ...updateDatas } = ctx.req.valid('form')
 
+    if (profilePic && profilePic.size > Number(process.env.MAX_FILE_SIZE)) {
+      return ctx.json({ message: 'File too large' }, 400)
+    }
+
     const profilePicUrl = profilePic ? await uploadProfile(profilePic) : undefined
 
     const { password, ...colWithoutPassword } = getTableColumns(users)
@@ -175,6 +179,10 @@ usersRoute.put(
     const db = ctx.get('database')
     const { id } = ctx.req.valid('param')
     const { profilePic, ...updateDatas } = ctx.req.valid('form')
+
+    if (profilePic && profilePic.size > Number(process.env.MAX_FILE_SIZE)) {
+      return ctx.json({ message: 'File too large' }, 400)
+    }
 
     const profilePicUrl = profilePic ? await uploadProfile(profilePic) : undefined
 

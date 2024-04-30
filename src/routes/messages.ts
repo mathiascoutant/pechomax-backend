@@ -75,6 +75,10 @@ messagesRoute.post(
     const { conversationId, content, pictures } = ctx.req.valid('form')
     const { id: userId } = ctx.get('userPayload')
 
+    if (pictures && pictures.size > Number(process.env.MAX_FILE_SIZE)) {
+      return ctx.json({ message: 'File too large' }, 400)
+    }
+
     const picturesUrl = pictures ? [await uploadMessage(pictures)] : []
 
     const messageList = await db
@@ -114,9 +118,15 @@ messagesRoute.put(
     const { id } = ctx.req.valid('param')
     const { pictures, ...updateMessage } = ctx.req.valid('form')
 
+    if (pictures && pictures.size > Number(process.env.MAX_FILE_SIZE)) {
+      return ctx.json({ message: 'File too large' }, 400)
+    }
+
+    const picturesUrl = pictures ? [await uploadMessage(pictures)] : undefined
+
     const messageList = await db
       .update(messages)
-      .set({ ...updateMessage, pictures: [await uploadMessage(pictures)] })
+      .set({ ...updateMessage, pictures: picturesUrl })
       .where(role === 'Admin' ? eq(messages.id, id) : and(eq(messages.id, id), eq(messages.userId, userId)))
       .returning()
 

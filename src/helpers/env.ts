@@ -17,6 +17,7 @@ const envSchema = z.object({
   FIREBASE_APP_ID: z.string(),
   FIREBASE_MEASUREMENT_ID: z.string(),
   PAGE_SIZE: z.string().default('15'),
+  MAX_FILE_SIZE: z.string().default((10 * 1024 * 1024).toString()),
   NODE_ENV: z.enum(['DEV', 'PROD']),
 })
 

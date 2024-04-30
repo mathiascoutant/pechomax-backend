@@ -88,6 +88,10 @@ catchesRoute.post(
       return ctx.json({ message: 'Species not found' }, 404)
     }
 
+    if (pictures && pictures.size > Number(process.env.MAX_FILE_SIZE)) {
+      return ctx.json({ message: 'File too large' }, 400)
+    }
+
     const picturesUrl = pictures ? [await uploadCatch(pictures)] : []
 
     const catchList = await db
@@ -135,6 +139,10 @@ catchesRoute.put(
     const { date, description, length, localisation, weight, pictures } = ctx.req.valid('form')
     const { id } = ctx.req.valid('param')
     const { id: userId, role } = ctx.get('userPayload')
+
+    if (pictures && pictures.size > Number(process.env.MAX_FILE_SIZE)) {
+      return ctx.json({ message: 'File too large' }, 400)
+    }
 
     const picturesUrl = pictures ? [await uploadCatch(pictures)] : undefined
 
