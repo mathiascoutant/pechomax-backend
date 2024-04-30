@@ -16,6 +16,7 @@ conversationsRoute.get('/', async (ctx) => {
     with: {
       messages: true,
       user: true,
+      category: true,
     },
   })
 
@@ -28,8 +29,8 @@ conversationsRoute.get('/self', isAuth(), async (ctx) => {
 
   const conversations = await db.query.conversations.findMany({
     where: (conv, { eq }) => eq(conv.userId, id),
-    with: { messages: { limit: 3 } },
-    orderBy: (msg, { desc }) => [desc(msg.createdAt)],
+    with: { messages: { limit: 3, orderBy: (msg, { desc }) => [desc(msg.createdAt)] }, user: true, category: true },
+    orderBy: (conv, { desc }) => [desc(conv.createdAt)],
   })
 
   return ctx.json(conversations)
@@ -50,9 +51,16 @@ conversationsRoute.get(
     const conversation = await db.query.conversations.findFirst({
       where: (conv, { eq }) => eq(conv.id, id),
       with: {
-        messages: true,
+        messages: {
+          orderBy: (msg, { desc }) => [desc(msg.createdAt)],
+          with: {
+            user: true,
+          },
+        },
         user: true,
+        category: true,
       },
+      orderBy: (conv, { desc }) => [desc(conv.createdAt)],
     })
 
     if (!conversation) {

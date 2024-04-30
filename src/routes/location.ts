@@ -10,7 +10,9 @@ const locationsRoute = new HonoVar().basePath('locations')
 locationsRoute.get('/', async (ctx) => {
   const db = ctx.get('database')
 
-  const locations = await db.query.locations.findMany()
+  const locations = await db.query.locations.findMany({
+    with: { user: true, speciesLocations: { with: { species: true } } },
+  })
 
   return ctx.json(locations)
 })
@@ -28,6 +30,7 @@ locationsRoute.get(
     const { id } = ctx.req.valid('param')
 
     const location = await db.query.locations.findFirst({
+      with: { user: true, speciesLocations: { with: { species: true } } },
       where: (location, { eq }) => eq(location.id, id),
     })
 

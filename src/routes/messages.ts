@@ -11,7 +11,7 @@ const messagesRoute = new HonoVar().basePath('messages')
 messagesRoute.get('/', async (ctx) => {
   const db = ctx.get('database')
 
-  const messages = await db.query.messages.findMany()
+  const messages = await db.query.messages.findMany({ with: { user: true } })
 
   return ctx.json(messages)
 })
@@ -29,6 +29,7 @@ messagesRoute.get(
     const { id } = ctx.req.valid('param')
 
     const message = await db.query.messages.findFirst({
+      with: { user: true },
       where: (msg, { eq }) => eq(msg.id, id),
     })
 
