@@ -1,6 +1,8 @@
 import { zValidator } from '@hono/zod-validator'
 import { and, eq } from 'drizzle-orm'
 import { conversations } from 'src/db/schema/conversations'
+import { messages } from 'src/db/schema/messages'
+import { uploadMessage } from 'src/helpers/firebase'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
@@ -79,6 +81,55 @@ conversationsRoute.post(
     const conversation = conversationList[0]
 
     return ctx.json(conversation, 201)
+  }
+)
+
+conversationsRoute.post(
+  '/start',
+  isAuth(),
+  zValidator(
+    'form',
+    z.object({
+      title: z.string().min(3),
+      categoryId: z.string(),
+      content: z.string(),
+      pictures: z.instanceof(File).optional().nullable(),
+    })
+  ),
+  async (ctx) => {
+    const db = ctx.get('database')
+    const payload = ctx.get('userPayload')
+    const { title, categoryId, content, pictures } = ctx.req.valid('form')
+
+    const conversationList = await db
+      .insert(conversations)
+      .values({
+        title: title,
+        categoryId,
+        userId: payload.id,
+      })
+      .returning()
+
+    if (conversationList.length === 0) {
+      return ctx.json({ message: 'Internal server error' }, 500)
+    }
+
+    const conversation = conversationList[0]
+
+    const picturesUrl = pictures ? [await uploadMessage(pictures)] : []
+
+    const messageList = await db
+      .insert(messages)
+      .values({ content, conversationId: conversation.id, userId: payload.id, pictures: picturesUrl })
+      .returning()
+
+    if (messageList.length === 0) {
+      return ctx.json({ message: 'Internal server error' }, 500)
+    }
+
+    const message = messageList[0]
+
+    return ctx.json({ conversation, message }, 201)
   }
 )
 
