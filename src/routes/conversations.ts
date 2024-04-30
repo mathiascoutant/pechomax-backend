@@ -22,6 +22,19 @@ conversationsRoute.get('/', async (ctx) => {
   return ctx.json(conversations)
 })
 
+conversationsRoute.get('/self', isAuth(), async (ctx) => {
+  const db = ctx.get('database')
+  const { id } = ctx.get('userPayload')
+
+  const conversations = await db.query.conversations.findMany({
+    where: (conv, { eq }) => eq(conv.userId, id),
+    with: { messages: { limit: 3 } },
+    orderBy: (msg, { desc }) => [desc(msg.createdAt)],
+  })
+
+  return ctx.json(conversations)
+})
+
 conversationsRoute.get(
   '/:id',
   zValidator(
