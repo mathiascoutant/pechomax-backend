@@ -56,9 +56,11 @@ messagesRoute.post(
     const { conversationId, content, pictures } = ctx.req.valid('form')
     const { id: userId } = ctx.get('userPayload')
 
+    const picturesUrl = pictures ? [await uploadMessage(pictures)] : []
+
     const messageList = await db
       .insert(messages)
-      .values({ conversationId, content, userId, pictures: [await uploadMessage(pictures)] })
+      .values({ conversationId, content, userId, pictures: picturesUrl })
       .returning()
 
     if (messageList.length === 0) {
