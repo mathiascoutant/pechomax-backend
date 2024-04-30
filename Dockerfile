@@ -26,6 +26,5 @@ COPY --from=build /build/dist ./dist
 COPY --from=build /build/migrations ./migrations
 COPY --from=build /build/package.json .
 COPY --from=dependencies /deps/node_modules ./node_modules
-COPY ./.env .
 
-CMD npm run start
+CMD npm run start:no-env
