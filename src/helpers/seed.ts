@@ -9,6 +9,7 @@ import { species } from 'src/db/schema/species'
 import { locations } from 'src/db/schema/locations'
 import { speciesLocation } from 'src/db/schema/speciesLocation'
 import { catches } from 'src/db/schema/catches'
+import { randomFrom, randomNumber, randomsFrom } from './random'
 
 async function createUser(role: 'User' | 'Admin', username?: string, password?: string) {
   const user = await db
@@ -116,4 +117,34 @@ async function createCatch(owner: string, species: string) {
   })
 
   return catchesItem[0]
+}
+
+export default async function seedDb() {
+  await createUser('Admin', 'admin', 'adminadmin')
+  const userList = await Promise.all(Array.from({ length: 10 }, () => createUser('User')))
+
+  const catList = await Promise.all(Array.from({ length: 3 }, () => createCategory()))
+
+  await Promise.all([() => createLevel(1, 0, 100), () => createLevel(2, 101, 200), () => createLevel(3, 201, 300)])
+
+  const conversationList = await Promise.all(
+    Array.from({ length: 20 }, () => createConversation(randomFrom(userList).id, randomFrom(catList).id))
+  )
+
+  for (const conv of conversationList) {
+    await Promise.all(Array.from({ length: 10 }, () => createMessage(randomFrom(userList).id, conv.id)))
+  }
+
+  const speciesList = await Promise.all(Array.from({ length: 10 }, () => createSpecies()))
+
+  await Promise.all(
+    Array.from({ length: 10 }, () =>
+      createLocation(
+        randomFrom(userList).id,
+        randomsFrom(speciesList, randomNumber(5)).map((s) => s.id)
+      )
+    )
+  )
+
+  await Promise.all(Array.from({ length: 10 }, () => createCatch(randomFrom(userList).id, randomFrom(speciesList).id)))
 }
