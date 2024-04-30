@@ -119,9 +119,11 @@ catchesRoute.put(
 
     const picturesUrl = pictures ? [await uploadCatch(pictures)] : undefined
 
+    const newDate = date ? new Date(date).toISOString() : undefined
+
     const catchList = await db
       .update(catches)
-      .set({ date: new Date(date).toISOString(), description, length, weight, localisation, pictures: picturesUrl })
+      .set({ date: newDate, description, length, weight, localisation, pictures: picturesUrl })
       .where(role === 'Admin' ? eq(catches.id, id) : and(eq(catches.id, id), eq(catches.userId, userId)))
       .returning()
 
