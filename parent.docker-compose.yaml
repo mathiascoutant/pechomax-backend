@@ -12,7 +12,10 @@ services:
       - pechomax-frontend-website/.env
     volumes:
       - ./parent.nginx.conf:/etc/nginx/templates/default.conf.template
-      - vite-volume:/usr/share/nginx/html
+      - type: volume
+        source: vite-volume
+        target: /build/dist
+        read_only: true
     depends_on:
       - server
     networks:
