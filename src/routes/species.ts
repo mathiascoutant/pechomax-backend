@@ -7,7 +7,7 @@ import { z } from 'zod'
 
 const speciesRoute = new HonoVar().basePath('species')
 
-speciesRoute.get('/', zValidator('query', z.object({ page: z.number().optional() })), async (ctx) => {
+speciesRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().optional() })), async (ctx) => {
   const db = ctx.get('database')
   const { page = 1 } = ctx.req.valid('query')
 

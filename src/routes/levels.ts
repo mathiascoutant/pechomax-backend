@@ -7,7 +7,7 @@ import { z } from 'zod'
 
 const levelsRoute = new HonoVar().basePath('/levels').use(isAuth('Admin'))
 
-levelsRoute.get('/', zValidator('query', z.object({ page: z.number().optional() })), async (ctx) => {
+levelsRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().optional() })), async (ctx) => {
   const db = ctx.get('database')
   const { page = 1 } = ctx.req.valid('query')
 

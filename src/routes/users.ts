@@ -8,7 +8,7 @@ import { z } from 'zod'
 
 const usersRoute = new HonoVar().basePath('/users')
 
-usersRoute.get('/', zValidator('query', z.object({ page: z.number().optional() })), async (ctx) => {
+usersRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().optional() })), async (ctx) => {
   const db = ctx.get('database')
   const { page = 1 } = ctx.req.valid('query')
 

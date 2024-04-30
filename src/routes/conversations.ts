@@ -9,7 +9,7 @@ import { z } from 'zod'
 
 const conversationsRoute = new HonoVar().basePath('/conversations')
 
-conversationsRoute.get('/', zValidator('query', z.object({ page: z.number().optional() })), async (ctx) => {
+conversationsRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().optional() })), async (ctx) => {
   const db = ctx.get('database')
   const { page = 1 } = ctx.req.valid('query')
 
@@ -84,7 +84,7 @@ conversationsRoute.get(
       id: z.string(),
     })
   ),
-  zValidator('query', z.object({ page: z.number().optional() })),
+  zValidator('query', z.object({ page: z.coerce.number().optional() })),
   async (ctx) => {
     const db = ctx.get('database')
     const { id } = ctx.req.valid('param')

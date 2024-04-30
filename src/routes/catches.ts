@@ -8,7 +8,7 @@ import { z } from 'zod'
 
 const catchesRoute = new HonoVar().basePath('/catches')
 
-catchesRoute.get('/', zValidator('query', z.object({ page: z.number().optional() })), async (ctx) => {
+catchesRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().optional() })), async (ctx) => {
   const db = ctx.get('database')
   const { page = 1 } = ctx.req.valid('query')
 
