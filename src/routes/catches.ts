@@ -74,7 +74,7 @@ catchesRoute.post(
     const catchList = await db
       .insert(catches)
       .values({
-        date: date.toISOString(),
+        date: new Date(date).toISOString(),
         length,
         weight,
         localisation,
@@ -107,7 +107,7 @@ catchesRoute.put(
       weight: z.string().optional(),
       localisation: z.string().optional(),
       description: z.string().optional().nullable(),
-      date: z.date().optional(),
+      date: z.string().optional(),
       pictures: z.instanceof(File).optional(),
     })
   ),
@@ -121,7 +121,7 @@ catchesRoute.put(
 
     const catchList = await db
       .update(catches)
-      .set({ date: date.toISOString(), description, length, weight, localisation, pictures: picturesUrl })
+      .set({ date: new Date(date).toISOString(), description, length, weight, localisation, pictures: picturesUrl })
       .where(role === 'Admin' ? eq(catches.id, id) : and(eq(catches.id, id), eq(catches.userId, userId)))
       .returning()
 
