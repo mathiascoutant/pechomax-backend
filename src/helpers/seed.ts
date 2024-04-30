@@ -120,13 +120,14 @@ async function createCatch(owner: string, species: string) {
 }
 
 export default async function seedDb() {
-  const admin = await createUser('Admin', 'admin', 'adminadmin')
-  const userList = await Promise.all([...Array.from({ length: 10 }, () => createUser('User'))])
-  userList.push(admin)
+  const userList = await Promise.all([
+    ...Array.from({ length: 10 }, () => createUser('User')),
+    createUser('Admin', 'admin', 'adminadmin'),
+  ])
 
   const catList = await Promise.all(Array.from({ length: 3 }, () => createCategory()))
 
-  await Promise.all([() => createLevel(1, 0, 100), () => createLevel(2, 101, 200), () => createLevel(3, 201, 300)])
+  await Promise.all([createLevel(1, 0, 100), createLevel(2, 101, 200), createLevel(3, 201, 300)])
 
   const conversationList = await Promise.all(
     Array.from({ length: 20 }, () => createConversation(randomFrom(userList).id, randomFrom(catList).id))
