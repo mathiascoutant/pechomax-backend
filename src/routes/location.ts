@@ -7,11 +7,16 @@ import { z } from 'zod'
 
 const locationsRoute = new HonoVar().basePath('locations')
 
-locationsRoute.get('/', async (ctx) => {
+locationsRoute.get('/', zValidator('query', z.object({ page: z.number().optional() })), async (ctx) => {
   const db = ctx.get('database')
+  const { page = 1 } = ctx.req.valid('query')
+
+  const pageSize = Number(process.env.PAGE_SIZE)
 
   const locations = await db.query.locations.findMany({
     with: { user: true, speciesLocations: { with: { species: true } } },
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
   })
 
   return ctx.json(locations)

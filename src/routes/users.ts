@@ -8,13 +8,16 @@ import { z } from 'zod'
 
 const usersRoute = new HonoVar().basePath('/users')
 
-usersRoute.get('/', async (ctx) => {
+usersRoute.get('/', zValidator('query', z.object({ page: z.number().optional() })), async (ctx) => {
   const db = ctx.get('database')
+  const { page = 1 } = ctx.req.valid('query')
 
   const userList = await db.query.users.findMany({
     columns: {
       password: false,
     },
+    limit: 10,
+    offset: (page - 1) * 10,
   })
 
   return ctx.json(userList, 200)

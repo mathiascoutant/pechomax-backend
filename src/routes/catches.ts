@@ -8,14 +8,19 @@ import { z } from 'zod'
 
 const catchesRoute = new HonoVar().basePath('/catches')
 
-catchesRoute.get('/', async (ctx) => {
+catchesRoute.get('/', zValidator('query', z.object({ page: z.number().optional() })), async (ctx) => {
   const db = ctx.get('database')
+  const { page = 1 } = ctx.req.valid('query')
+
+  const pageSize = Number(process.env.PAGE_SIZE)
 
   const catchList = await db.query.catches.findMany({
     with: {
       user: true,
       species: true,
     },
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
   })
 
   return ctx.json(catchList)

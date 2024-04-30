@@ -9,8 +9,11 @@ import { z } from 'zod'
 
 const conversationsRoute = new HonoVar().basePath('/conversations')
 
-conversationsRoute.get('/', async (ctx) => {
+conversationsRoute.get('/', zValidator('query', z.object({ page: z.number().optional() })), async (ctx) => {
   const db = ctx.get('database')
+  const { page = 1 } = ctx.req.valid('query')
+
+  const pageSize = Number(process.env.PAGE_SIZE)
 
   const conversations = await db.query.conversations.findMany({
     with: {
@@ -18,6 +21,8 @@ conversationsRoute.get('/', async (ctx) => {
       user: true,
       category: true,
     },
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
   })
 
   return ctx.json(conversations)
@@ -79,15 +84,21 @@ conversationsRoute.get(
       id: z.string(),
     })
   ),
+  zValidator('query', z.object({ page: z.number().optional() })),
   async (ctx) => {
     const db = ctx.get('database')
     const { id } = ctx.req.valid('param')
+    const { page = 1 } = ctx.req.valid('query')
+
+    const pageSize = Number(process.env.PAGE_SIZE)
 
     const messageList = await db.query.messages.findMany({
       where: (msg, { eq }) => eq(msg.conversationId, id),
       with: {
         user: true,
       },
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
     })
 
     if (messageList.length === 0) {

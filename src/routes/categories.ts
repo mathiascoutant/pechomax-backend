@@ -32,10 +32,13 @@ categoriesRoute.post(
   }
 )
 
-categoriesRoute.get('/', async (ctx) => {
+categoriesRoute.get('/', zValidator('query', z.object({ page: z.number().optional() })), async (ctx) => {
   const db = ctx.get('database')
+  const { page = 1 } = ctx.req.valid('query')
 
-  const categoryList = await db.query.categories.findMany()
+  const pageSize = Number(process.env.PAGE_SIZE)
+
+  const categoryList = await db.query.categories.findMany({ limit: pageSize, offset: (page - 1) * pageSize })
 
   return ctx.json(categoryList)
 })

@@ -8,10 +8,17 @@ import { z } from 'zod'
 
 const messagesRoute = new HonoVar().basePath('messages')
 
-messagesRoute.get('/', async (ctx) => {
+messagesRoute.get('/', zValidator('query', z.object({ page: z.number().optional() })), async (ctx) => {
   const db = ctx.get('database')
+  const { page = 1 } = ctx.req.valid('query')
 
-  const messages = await db.query.messages.findMany({ with: { user: true } })
+  const pageSize = Number(process.env.PAGE_SIZE)
+
+  const messages = await db.query.messages.findMany({
+    with: { user: true },
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
+  })
 
   return ctx.json(messages)
 })

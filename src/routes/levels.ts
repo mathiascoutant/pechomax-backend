@@ -7,10 +7,13 @@ import { z } from 'zod'
 
 const levelsRoute = new HonoVar().basePath('/levels').use(isAuth('Admin'))
 
-levelsRoute.get('/', async (ctx) => {
+levelsRoute.get('/', zValidator('query', z.object({ page: z.number().optional() })), async (ctx) => {
   const db = ctx.get('database')
+  const { page = 1 } = ctx.req.valid('query')
 
-  const levelList = await db.query.levels.findMany()
+  const pageSize = Number(process.env.PAGE_SIZE)
+
+  const levelList = await db.query.levels.findMany({ limit: pageSize, offset: (page - 1) * pageSize })
 
   return ctx.json(levelList, 200)
 })
