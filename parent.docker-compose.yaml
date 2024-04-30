@@ -8,8 +8,6 @@ services:
       - SERVER_PORT=3000
     ports:
       - "80:80"
-    env_file:
-      - pechomax-frontend-website/.env
     volumes:
       - ./parent.nginx.conf:/etc/nginx/templates/default.conf.template
       - type: volume
@@ -33,6 +31,8 @@ services:
     build:
       context: ./pechomax-frontend-website
       dockerfile: Dockerfile
+    env_file:
+      - ./pechomax-frontend-website/.env
     volumes:
       - vite-volume:/build/dist
   server:
