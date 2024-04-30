@@ -81,7 +81,17 @@ usersRoute.post(
     const db = ctx.get('database')
     const { username, email, password, role } = ctx.req.valid('json')
 
-    const userList = await db.insert(users).values({ username, email, password, role }).returning()
+    const userList = await db
+      .insert(users)
+      .values({
+        username,
+        email,
+        password,
+        role,
+        profilePic:
+          'https://firebasestorage.googleapis.com/v0/b/pechomax-cfa82.appspot.com/o/profilePic%2Fdefault.png?alt=media&token=58d39852-07a3-489c-9c51-3a448ea90729',
+      })
+      .returning()
 
     if (userList.length === 0) {
       return ctx.json({ message: 'Internal server error' }, 500)
