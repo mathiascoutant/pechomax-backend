@@ -41,6 +41,17 @@ messagesRoute.get(
   }
 )
 
+messagesRoute.get('/self', isAuth(), async (ctx) => {
+  const db = ctx.get('database')
+  const { id } = ctx.get('userPayload')
+
+  const messages = await db.query.messages.findMany({
+    where: (msg, { eq }) => eq(msg.userId, id),
+  })
+
+  return ctx.json(messages)
+})
+
 messagesRoute.post(
   '/create',
   isAuth(),

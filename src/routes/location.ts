@@ -42,6 +42,18 @@ locationsRoute.get(
   }
 )
 
+locationsRoute.get('self', isAuth(), async (ctx) => {
+  const db = ctx.get('database')
+  const { id } = ctx.get('userPayload')
+
+  const locations = await db.query.locations.findMany({
+    where: (location, { eq }) => eq(location.userId, id),
+    with: { speciesLocations: { with: { species: true } } },
+  })
+
+  return ctx.json(locations)
+})
+
 locationsRoute.post(
   '/create',
   isAuth(),

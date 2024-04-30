@@ -40,6 +40,20 @@ catchesRoute.get('/:id', zValidator('param', z.object({ id: z.string() })), asyn
   return ctx.json(catchItem)
 })
 
+catchesRoute.get('self', isAuth(), async (ctx) => {
+  const db = ctx.get('database')
+  const { id } = ctx.get('userPayload')
+
+  const catchList = await db.query.catches.findMany({
+    where: (catchItem, { eq }) => eq(catchItem.userId, id),
+    with: {
+      species: true,
+    },
+  })
+
+  return ctx.json(catchList)
+})
+
 catchesRoute.post(
   '/create',
   isAuth(),
