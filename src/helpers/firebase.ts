@@ -17,7 +17,8 @@ export const storage = getStorage(app)
 
 async function uploadImage(file: File, path: string) {
   const name = uuidv4()
-  const storageRef = ref(storage, `${path}/${name}`)
+  const extension = file.type.split('/').at(-1)
+  const storageRef = ref(storage, `${path}/${name}.${extension}`)
   const uploadTask = uploadBytesResumable(storageRef, file)
 
   return getDownloadURL(uploadTask.snapshot.ref)
