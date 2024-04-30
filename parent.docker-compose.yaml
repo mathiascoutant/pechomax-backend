@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  proxy:
+    image: nginx
+    environment:
+      - SERVER_HOST=server
+      - SERVER_PORT=3000
+    ports:
+      - "80:80"
+    env_file:
+      - pechomax-frontend-website/.env
+    volumes:
+      - ./parent.nginx.conf:/etc/nginx/templates/default.conf.template
+      - vite-volume:/usr/share/nginx/html
+    depends_on:
+      - server
+    networks:
+      - backend
+  database:
+    image: postgres:16.1-alpine
+    restart: always
+    expose:
+      - 5432
+    env_file:
+      - ./pechomax-backend/.env
+    networks:
+      - backend
+  web:
+    build:
+      context: ./pechomax-frontend-website
+      dockerfile: Dockerfile
+    volumes:
+      - vite-volume:/build/dist
+  server:
+    build: 
+      context: ./pechomax-backend
+      dockerfile: Dockerfile
+    expose:
+      - 3000
+    env_file:
+      - ./pechomax-backend/.env
+    depends_on:
+      - database
+    restart: on-failure
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  vite-volume:

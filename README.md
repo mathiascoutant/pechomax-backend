@@ -28,3 +28,5 @@ $ npm run dev
 $ docker compose up -d
 # launching on localhost/api
 ```
+
+when running in production mode, `parent.docker-compose.yaml` and `parent.nginx.conf` are supposed to be placed in the parent directory of [pechomax-backend](https://github.com/mathiascoutant/pechomax-backend) and [pechomax-frontend-web](https://github.com/mathiascoutant/pechomax-frontend-web).
