@@ -71,6 +71,33 @@ conversationsRoute.get(
   }
 )
 
+conversationsRoute.get(
+  '/:id/messages',
+  zValidator(
+    'param',
+    z.object({
+      id: z.string(),
+    })
+  ),
+  async (ctx) => {
+    const db = ctx.get('database')
+    const { id } = ctx.req.valid('param')
+
+    const messageList = await db.query.messages.findMany({
+      where: (msg, { eq }) => eq(msg.conversationId, id),
+      with: {
+        user: true,
+      },
+    })
+
+    if (messageList.length === 0) {
+      return ctx.json({ message: 'Conversation not found' }, 404)
+    }
+
+    return ctx.json(messageList)
+  }
+)
+
 conversationsRoute.post(
   '/create',
   isAuth(),
