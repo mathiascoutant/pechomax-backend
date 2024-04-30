@@ -51,7 +51,7 @@ catchesRoute.post(
       speciesId: z.string(),
       localisation: z.string(),
       description: z.string(),
-      date: z.date(),
+      date: z.string(),
       pictures: z.instanceof(File).optional(),
     })
   ),
