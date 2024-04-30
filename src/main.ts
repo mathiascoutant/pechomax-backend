@@ -16,8 +16,13 @@ import locationsRoute from './routes/location'
 import speciesLocationRoute from './routes/speciesLocation'
 import levelsRoute from './routes/levels'
 import { migrate } from 'drizzle-orm/node-postgres/migrator'
+import seedDb from './helpers/seed'
 
 await migrate(db, { migrationsFolder: 'migrations/' })
+
+if (process?.env?.NODE_ENV === 'DEV') {
+  await seedDb()
+}
 
 const app = new HonoVar()
 
