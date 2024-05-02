@@ -1,7 +1,8 @@
 import { zValidator } from '@hono/zod-validator'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 import { env } from 'hono/adapter'
 import { catches } from 'src/db/schema/catches'
+import { users } from 'src/db/schema/users'
 import { uploadCatch } from 'src/helpers/firebase'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
@@ -66,8 +67,8 @@ catchesRoute.post(
   zValidator(
     'form',
     z.object({
-      length: z.string(),
-      weight: z.string(),
+      length: z.coerce.number(),
+      weight: z.coerce.number(),
       speciesId: z.string(),
       localisation: z.string(),
       description: z.string(),
@@ -78,7 +79,7 @@ catchesRoute.post(
   async (ctx) => {
     const db = ctx.get('database')
     const { date, description, length, localisation, speciesId, weight, pictures } = ctx.req.valid('form')
-    const { id } = ctx.get('userPayload')
+    const { id, score } = ctx.get('userPayload')
 
     const species = await db.query.species.findFirst({
       where: (species, { eq }) => eq(species.id, speciesId),
@@ -103,7 +104,7 @@ catchesRoute.post(
         weight,
         localisation,
         pictures: picturesUrl,
-        pointValue: species.pointValue * length.length * weight.length,
+        pointValue: species.pointValue * length * weight,
         userId: id,
         description,
         speciesId,
@@ -116,6 +117,16 @@ catchesRoute.post(
 
     const catchItem = catchList[0]
 
+    const newLevel = await db.query.levels.findFirst({
+      where: (level, { and, gte, lt }) =>
+        and(gte(level.start, score + catchItem.pointValue), lt(level.end, score + catchItem.pointValue)),
+    })
+
+    await db
+      .update(users)
+      .set({ score: sql`${users.score} + ${catchItem.pointValue}`, levelId: newLevel.id })
+      .where(eq(users.id, id))
+
     return ctx.json(catchItem)
   }
 )
@@ -127,8 +138,8 @@ catchesRoute.put(
   zValidator(
     'form',
     z.object({
-      length: z.string().optional(),
-      weight: z.string().optional(),
+      length: z.coerce.number().optional(),
+      weight: z.coerce.number().optional(),
       localisation: z.string().optional(),
       description: z.string().optional().nullable(),
       date: z.string().optional(),
@@ -139,7 +150,7 @@ catchesRoute.put(
     const db = ctx.get('database')
     const { date, description, length, localisation, weight, pictures } = ctx.req.valid('form')
     const { id } = ctx.req.valid('param')
-    const { id: userId, role } = ctx.get('userPayload')
+    const { id: userId, role, score } = ctx.get('userPayload')
 
     if (pictures && pictures.size > Number(env(ctx).MAX_FILE_SIZE)) {
       return ctx.json({ message: 'File too large' }, 400)
@@ -160,6 +171,16 @@ catchesRoute.put(
     }
 
     const catchItem = catchList[0]
+
+    const newLevel = await db.query.levels.findFirst({
+      where: (level, { and, gte, lt }) =>
+        and(gte(level.start, score + catchItem.pointValue), lt(level.end, score + catchItem.pointValue)),
+    })
+
+    await db
+      .update(users)
+      .set({ score: sql`${users.score} + ${catchItem.pointValue}`, levelId: newLevel.id })
+      .where(eq(users.id, userId))
 
     return ctx.json(catchItem)
   }
