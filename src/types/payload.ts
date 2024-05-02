@@ -4,4 +4,5 @@ export interface Payload {
   id: string
   username: string
   role: (typeof userRolesEnum.enumValues)[number]
+  score: number
 }

@@ -1,10 +1,13 @@
 import { zValidator } from '@hono/zod-validator'
 import { eq, getTableColumns } from 'drizzle-orm'
 import { env } from 'hono/adapter'
+import { setSignedCookie } from 'hono/cookie'
+import { sign } from 'hono/jwt'
 import { userRolesEnum, users } from 'src/db/schema/users'
 import { uploadProfile } from 'src/helpers/firebase'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
+import { Payload } from 'src/types/payload'
 import { z } from 'zod'
 
 const usersRoute = new HonoVar().basePath('/users')
@@ -162,6 +165,19 @@ usersRoute.put(
 
     const user = userList[0]
 
+    const newPayload: Payload = {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      score: user.score,
+    }
+
+    const { COOKIE_SECRET, JWT_SECRET } = env(ctx)
+
+    const token = await sign(newPayload, JWT_SECRET)
+
+    await setSignedCookie(ctx, 'access_token', token, COOKIE_SECRET)
+
     return ctx.json(user, 200)
   }
 )
@@ -194,6 +210,7 @@ usersRoute.put(
     const db = ctx.get('database')
     const { id } = ctx.req.valid('param')
     const { profilePic, ...updateDatas } = ctx.req.valid('form')
+    const { id: userId } = ctx.get('userPayload')
 
     if (profilePic && profilePic.size > Number(env(ctx).MAX_FILE_SIZE)) {
       return ctx.json({ message: 'File too large' }, 400)
@@ -215,6 +232,20 @@ usersRoute.put(
 
     const user = userList[0]
 
+    if (id === userId) {
+      const newPayload: Payload = {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        score: user.score,
+      }
+
+      const { COOKIE_SECRET, JWT_SECRET } = env(ctx)
+
+      const token = await sign(newPayload, JWT_SECRET)
+
+      await setSignedCookie(ctx, 'access_token', token, COOKIE_SECRET)
+    }
     return ctx.json(user, 200)
   }
 )

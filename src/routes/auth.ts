@@ -92,6 +92,7 @@ authRoute.post(
         id: user.id,
         username: user.username,
         role: user.role,
+        score: user.score,
       }
 
       const { COOKIE_SECRET, JWT_SECRET } = env(ctx)
@@ -135,6 +136,7 @@ authRoute.post(
         id: user.id,
         username: user.username,
         role: user.role,
+        score: user.score,
       }
 
       const { COOKIE_SECRET, JWT_SECRET } = env(ctx)
