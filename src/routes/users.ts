@@ -1,5 +1,6 @@
 import { zValidator } from '@hono/zod-validator'
 import { eq, getTableColumns } from 'drizzle-orm'
+import { env } from 'hono/adapter'
 import { userRolesEnum, users } from 'src/db/schema/users'
 import { uploadProfile } from 'src/helpers/firebase'
 import { HonoVar } from 'src/helpers/hono'
@@ -12,12 +13,14 @@ usersRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().optio
   const db = ctx.get('database')
   const { page = 1 } = ctx.req.valid('query')
 
+  const pageSize = Number(env(ctx).PAGE_SIZE)
+
   const userList = await db.query.users.findMany({
     columns: {
       password: false,
     },
-    limit: 10,
-    offset: (page - 1) * 10,
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
   })
 
   return ctx.json(userList, 200)
