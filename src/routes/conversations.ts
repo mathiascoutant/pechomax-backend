@@ -6,6 +6,7 @@ import { uploadMessage } from 'src/helpers/firebase'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
+import { env } from 'hono/adapter'
 
 const conversationsRoute = new HonoVar().basePath('/conversations')
 
@@ -13,7 +14,7 @@ conversationsRoute.get('/', zValidator('query', z.object({ page: z.coerce.number
   const db = ctx.get('database')
   const { page = 1 } = ctx.req.valid('query')
 
-  const pageSize = Number(process.env.PAGE_SIZE)
+  const pageSize = Number(env(ctx).PAGE_SIZE)
 
   const conversations = await db.query.conversations.findMany({
     with: {
@@ -90,7 +91,7 @@ conversationsRoute.get(
     const { id } = ctx.req.valid('param')
     const { page = 1 } = ctx.req.valid('query')
 
-    const pageSize = Number(process.env.PAGE_SIZE)
+    const pageSize = Number(env(ctx).PAGE_SIZE)
 
     const messageList = await db.query.messages.findMany({
       where: (msg, { eq }) => eq(msg.conversationId, id),

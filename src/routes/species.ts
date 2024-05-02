@@ -4,6 +4,7 @@ import { species } from 'src/db/schema/species'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
+import { env } from 'hono/adapter'
 
 const speciesRoute = new HonoVar().basePath('species')
 
@@ -11,7 +12,7 @@ speciesRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().opt
   const db = ctx.get('database')
   const { page = 1 } = ctx.req.valid('query')
 
-  const pageSize = Number(process.env.PAGE_SIZE)
+  const pageSize = Number(env(ctx).PAGE_SIZE)
 
   const species = await db.query.species.findMany({ limit: pageSize, offset: (page - 1) * pageSize })
 

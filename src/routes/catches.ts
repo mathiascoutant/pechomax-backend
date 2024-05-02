@@ -1,5 +1,6 @@
 import { zValidator } from '@hono/zod-validator'
 import { and, eq } from 'drizzle-orm'
+import { env } from 'hono/adapter'
 import { catches } from 'src/db/schema/catches'
 import { uploadCatch } from 'src/helpers/firebase'
 import { HonoVar } from 'src/helpers/hono'
@@ -12,7 +13,7 @@ catchesRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().opt
   const db = ctx.get('database')
   const { page = 1 } = ctx.req.valid('query')
 
-  const pageSize = Number(process.env.PAGE_SIZE)
+  const pageSize = Number(env(ctx).PAGE_SIZE)
 
   const catchList = await db.query.catches.findMany({
     with: {
@@ -88,7 +89,7 @@ catchesRoute.post(
       return ctx.json({ message: 'Species not found' }, 404)
     }
 
-    if (pictures && pictures.size > Number(process.env.MAX_FILE_SIZE)) {
+    if (pictures && pictures.size > Number(env(ctx).MAX_FILE_SIZE)) {
       return ctx.json({ message: 'File too large' }, 400)
     }
 
@@ -140,7 +141,7 @@ catchesRoute.put(
     const { id } = ctx.req.valid('param')
     const { id: userId, role } = ctx.get('userPayload')
 
-    if (pictures && pictures.size > Number(process.env.MAX_FILE_SIZE)) {
+    if (pictures && pictures.size > Number(env(ctx).MAX_FILE_SIZE)) {
       return ctx.json({ message: 'File too large' }, 400)
     }
 

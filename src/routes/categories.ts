@@ -4,6 +4,7 @@ import { categories } from 'src/db/schema/categories'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
+import { env } from 'hono/adapter'
 
 const categoriesRoute = new HonoVar().basePath('/categories')
 
@@ -36,7 +37,7 @@ categoriesRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().
   const db = ctx.get('database')
   const { page = 1 } = ctx.req.valid('query')
 
-  const pageSize = Number(process.env.PAGE_SIZE)
+  const pageSize = Number(env(ctx).PAGE_SIZE)
 
   const categoryList = await db.query.categories.findMany({ limit: pageSize, offset: (page - 1) * pageSize })
 

@@ -4,6 +4,7 @@ import { levels } from 'src/db/schema/levels'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
+import { env } from 'hono/adapter'
 
 const levelsRoute = new HonoVar().basePath('/levels').use(isAuth('Admin'))
 
@@ -11,7 +12,7 @@ levelsRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().opti
   const db = ctx.get('database')
   const { page = 1 } = ctx.req.valid('query')
 
-  const pageSize = Number(process.env.PAGE_SIZE)
+  const pageSize = Number(env(ctx).PAGE_SIZE)
 
   const levelList = await db.query.levels.findMany({ limit: pageSize, offset: (page - 1) * pageSize })
 

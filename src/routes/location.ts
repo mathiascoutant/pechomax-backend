@@ -4,6 +4,7 @@ import { locations } from 'src/db/schema/locations'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
+import { env } from 'hono/adapter'
 
 const locationsRoute = new HonoVar().basePath('locations')
 
@@ -11,7 +12,7 @@ locationsRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().o
   const db = ctx.get('database')
   const { page = 1 } = ctx.req.valid('query')
 
-  const pageSize = Number(process.env.PAGE_SIZE)
+  const pageSize = Number(env(ctx).PAGE_SIZE)
 
   const locations = await db.query.locations.findMany({
     with: { user: true, speciesLocations: { with: { species: true } } },

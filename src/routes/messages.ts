@@ -5,6 +5,7 @@ import { uploadMessage } from 'src/helpers/firebase'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
+import { env } from 'hono/adapter'
 
 const messagesRoute = new HonoVar().basePath('messages')
 
@@ -12,7 +13,7 @@ messagesRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().op
   const db = ctx.get('database')
   const { page = 1 } = ctx.req.valid('query')
 
-  const pageSize = Number(process.env.PAGE_SIZE)
+  const pageSize = Number(env(ctx).PAGE_SIZE)
 
   const messages = await db.query.messages.findMany({
     with: { user: true },
@@ -75,7 +76,7 @@ messagesRoute.post(
     const { conversationId, content, pictures } = ctx.req.valid('form')
     const { id: userId } = ctx.get('userPayload')
 
-    if (pictures && pictures.size > Number(process.env.MAX_FILE_SIZE)) {
+    if (pictures && pictures.size > Number(env(ctx).MAX_FILE_SIZE)) {
       return ctx.json({ message: 'File too large' }, 400)
     }
 
@@ -118,7 +119,7 @@ messagesRoute.put(
     const { id } = ctx.req.valid('param')
     const { pictures, ...updateMessage } = ctx.req.valid('form')
 
-    if (pictures && pictures.size > Number(process.env.MAX_FILE_SIZE)) {
+    if (pictures && pictures.size > Number(env(ctx).MAX_FILE_SIZE)) {
       return ctx.json({ message: 'File too large' }, 400)
     }
 
