@@ -24,6 +24,17 @@ messagesRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().op
   return ctx.json(messages)
 })
 
+messagesRoute.get('/self', isAuth(), async (ctx) => {
+  const db = ctx.get('database')
+  const { id } = ctx.get('userPayload')
+
+  const messages = await db.query.messages.findMany({
+    where: (msg, { eq }) => eq(msg.userId, id),
+  })
+
+  return ctx.json(messages)
+})
+
 messagesRoute.get(
   '/:id',
   zValidator(
@@ -48,17 +59,6 @@ messagesRoute.get(
     return ctx.json(message)
   }
 )
-
-messagesRoute.get('/self', isAuth(), async (ctx) => {
-  const db = ctx.get('database')
-  const { id } = ctx.get('userPayload')
-
-  const messages = await db.query.messages.findMany({
-    where: (msg, { eq }) => eq(msg.userId, id),
-  })
-
-  return ctx.json(messages)
-})
 
 messagesRoute.post(
   '/create',
