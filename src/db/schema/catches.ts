@@ -1,12 +1,12 @@
-import { date, decimal, integer, pgTable, text, uuid } from 'drizzle-orm/pg-core'
+import { date, integer, pgTable, text, uuid } from 'drizzle-orm/pg-core'
 import { users } from './users'
 import { species } from './species'
 import { relations } from 'drizzle-orm'
 
 export const catches = pgTable('catches', {
   id: uuid('id').defaultRandom().primaryKey(),
-  length: decimal('length', { precision: 5, scale: 2 }).notNull(),
-  weight: decimal('weight', { precision: 5, scale: 2 }).notNull(),
+  length: integer('length').notNull(),
+  weight: integer('weight').notNull(),
   localisation: text('localisation').notNull(),
   pictures: text('pictures').array().notNull(),
   description: text('description'),
