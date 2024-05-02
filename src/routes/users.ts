@@ -26,6 +26,18 @@ usersRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().optio
   return ctx.json(userList, 200)
 })
 
+usersRoute.get('/all', async (ctx) => {
+  const db = ctx.get('database')
+
+  const userList = await db.query.users.findMany({
+    columns: {
+      password: false,
+    },
+  })
+
+  return ctx.json(userList, 200)
+})
+
 usersRoute.get('/self', isAuth(), async (ctx) => {
   const payload = ctx.get('userPayload')
   const db = ctx.get('database')
@@ -130,7 +142,7 @@ usersRoute.put(
     const db = ctx.get('database')
     const { profilePic, ...updateDatas } = ctx.req.valid('form')
 
-    if (profilePic && profilePic.size > Number(process.env.MAX_FILE_SIZE)) {
+    if (profilePic && profilePic.size > Number(env(ctx).MAX_FILE_SIZE)) {
       return ctx.json({ message: 'File too large' }, 400)
     }
 
@@ -183,7 +195,7 @@ usersRoute.put(
     const { id } = ctx.req.valid('param')
     const { profilePic, ...updateDatas } = ctx.req.valid('form')
 
-    if (profilePic && profilePic.size > Number(process.env.MAX_FILE_SIZE)) {
+    if (profilePic && profilePic.size > Number(env(ctx).MAX_FILE_SIZE)) {
       return ctx.json({ message: 'File too large' }, 400)
     }
 
