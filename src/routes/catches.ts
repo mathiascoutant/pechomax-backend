@@ -124,7 +124,7 @@ catchesRoute.post(
 
     await db
       .update(users)
-      .set({ score: sql`${users.score} + ${catchItem.pointValue}`, levelId: newLevel.id })
+      .set({ score: sql`${users.score} + ${catchItem.pointValue}`, levelId: newLevel?.id ?? undefined })
       .where(eq(users.id, id))
 
     return ctx.json(catchItem)
@@ -179,7 +179,7 @@ catchesRoute.put(
 
     await db
       .update(users)
-      .set({ score: sql`${users.score} + ${catchItem.pointValue}`, levelId: newLevel.id })
+      .set({ score: sql`${users.score} + ${catchItem.pointValue}`, levelId: newLevel?.id ?? undefined })
       .where(eq(users.id, userId))
 
     return ctx.json(catchItem)
