@@ -46,7 +46,7 @@ catchesRoute.get('/:id', zValidator('param', z.object({ id: z.string() })), asyn
   return ctx.json(catchItem)
 })
 
-catchesRoute.get('self', isAuth(), async (ctx) => {
+catchesRoute.get('/self', isAuth(), async (ctx) => {
   const db = ctx.get('database')
   const { id } = ctx.get('userPayload')
 

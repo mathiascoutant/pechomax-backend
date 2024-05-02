@@ -48,7 +48,7 @@ locationsRoute.get(
   }
 )
 
-locationsRoute.get('self', isAuth(), async (ctx) => {
+locationsRoute.get('/self', isAuth(), async (ctx) => {
   const db = ctx.get('database')
   const { id } = ctx.get('userPayload')
 
