@@ -21,7 +21,9 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['DEV', 'PROD']),
 })
 
-envSchema.parse(process.env)
+const parsedEnv = envSchema.parse(process.env)
+
+process.env = parsedEnv
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
