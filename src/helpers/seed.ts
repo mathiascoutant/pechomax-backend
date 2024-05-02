@@ -107,8 +107,8 @@ async function createLocation(owner: string, species: string[]) {
 async function createCatch(owner: string, species: string) {
   const catchesItem = await db.insert(catches).values({
     date: faker.date.recent().toISOString(),
-    length: faker.number.float({ max: 100 }).toString(),
-    weight: faker.number.float({ max: 100 }).toString(),
+    length: faker.number.int({ max: 100 }),
+    weight: faker.number.int({ max: 100 }),
     localisation: faker.lorem.word(),
     pictures: [],
     pointValue: faker.number.int({ max: 100 }),
