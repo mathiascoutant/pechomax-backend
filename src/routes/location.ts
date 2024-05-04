@@ -23,6 +23,16 @@ locationsRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().o
   return ctx.json(locations)
 })
 
+locationsRoute.get('/all', async (ctx) => {
+  const db = ctx.get('database')
+
+  const locations = await db.query.locations.findMany({
+    with: { user: true, speciesLocations: { with: { species: true } } },
+  })
+
+  return ctx.json(locations)
+})
+
 locationsRoute.get('/self', isAuth(), async (ctx) => {
   const db = ctx.get('database')
   const { id } = ctx.get('userPayload')
