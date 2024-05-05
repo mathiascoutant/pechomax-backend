@@ -2,6 +2,7 @@ import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { users } from './users'
 import { relations } from 'drizzle-orm'
 import { speciesLocation } from './speciesLocation'
+import { catches } from './catches'
 
 export const locations = pgTable('locations', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -23,6 +24,7 @@ export const locationsRelations = relations(locations, ({ one, many }) => ({
     references: [users.id],
   }),
   speciesLocations: many(speciesLocation),
+  catches: many(catches),
 }))
 
 export type Location = typeof locations.$inferSelect
