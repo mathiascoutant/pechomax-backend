@@ -14,7 +14,11 @@ speciesRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().opt
 
   const pageSize = Number(env(ctx).PAGE_SIZE)
 
-  const species = await db.query.species.findMany({ limit: pageSize, offset: (page - 1) * pageSize })
+  const species = await db.query.species.findMany({
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
+    with: { speciesLoactions: { with: { location: true } } },
+  })
 
   return ctx.json(species)
 })
@@ -33,6 +37,7 @@ speciesRoute.get(
 
     const species = await db.query.species.findFirst({
       where: (species, { eq }) => eq(species.id, id),
+      with: { speciesLoactions: { with: { location: true } } },
     })
 
     if (!species) {
