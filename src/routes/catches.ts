@@ -20,6 +20,7 @@ catchesRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().opt
     with: {
       user: true,
       species: true,
+      location: true,
     },
     limit: pageSize,
     offset: (page - 1) * pageSize,
@@ -36,6 +37,7 @@ catchesRoute.get('/self', isAuth(), async (ctx) => {
     where: (catchItem, { eq }) => eq(catchItem.userId, id),
     with: {
       species: true,
+      location: true,
     },
   })
 
@@ -51,6 +53,7 @@ catchesRoute.get('/:id', zValidator('param', z.object({ id: z.string() })), asyn
     with: {
       user: true,
       species: true,
+      location: true,
     },
   })
 
@@ -70,7 +73,7 @@ catchesRoute.post(
       length: z.coerce.number(),
       weight: z.coerce.number(),
       speciesId: z.string(),
-      localisation: z.string(),
+      locationId: z.string(),
       description: z.string(),
       date: z.string(),
       pictures: z.instanceof(File).optional(),
@@ -78,7 +81,7 @@ catchesRoute.post(
   ),
   async (ctx) => {
     const db = ctx.get('database')
-    const { date, description, length, localisation, speciesId, weight, pictures } = ctx.req.valid('form')
+    const { date, description, length, locationId, speciesId, weight, pictures } = ctx.req.valid('form')
     const { id, score } = ctx.get('userPayload')
 
     const species = await db.query.species.findFirst({
@@ -102,7 +105,7 @@ catchesRoute.post(
         date: new Date(date).toISOString(),
         length,
         weight,
-        localisation,
+        locationId,
         pictures: picturesUrl,
         pointValue: species.pointValue * length * weight,
         userId: id,
@@ -140,7 +143,7 @@ catchesRoute.put(
     z.object({
       length: z.coerce.number().optional(),
       weight: z.coerce.number().optional(),
-      localisation: z.string().optional(),
+      locationId: z.string().optional(),
       description: z.string().optional().nullable(),
       date: z.string().optional(),
       pictures: z.instanceof(File).optional(),
@@ -148,7 +151,7 @@ catchesRoute.put(
   ),
   async (ctx) => {
     const db = ctx.get('database')
-    const { date, description, length, localisation, weight, pictures } = ctx.req.valid('form')
+    const { date, description, length, locationId, weight, pictures } = ctx.req.valid('form')
     const { id } = ctx.req.valid('param')
     const { id: userId, role, score } = ctx.get('userPayload')
 
@@ -162,7 +165,7 @@ catchesRoute.put(
 
     const catchList = await db
       .update(catches)
-      .set({ date: newDate, description, length, weight, localisation, pictures: picturesUrl })
+      .set({ date: newDate, description, length, weight, locationId, pictures: picturesUrl })
       .where(role === 'Admin' ? eq(catches.id, id) : and(eq(catches.id, id), eq(catches.userId, userId)))
       .returning()
 
