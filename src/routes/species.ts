@@ -130,7 +130,7 @@ speciesRoute.put(
     }
 
     if (deleteLocationIds && deleteLocationIds.length > 0) {
-      await db.delete(speciesLocation).where(inArray(speciesLocation.locationId, deleteLocationIds)).returning()
+      await db.delete(speciesLocation).where(inArray(speciesLocation.locationId, deleteLocationIds))
     }
 
     const returningSpecies = await db.query.species.findFirst({
