@@ -1,10 +1,11 @@
 import { zValidator } from '@hono/zod-validator'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 import { locations } from 'src/db/schema/locations'
 import { HonoVar } from 'src/helpers/hono'
 import { isAuth } from 'src/middlewares/isAuth'
 import { z } from 'zod'
 import { env } from 'hono/adapter'
+import { speciesLocation } from 'src/db/schema/speciesLocation'
 
 const locationsRoute = new HonoVar().basePath('locations')
 
@@ -80,12 +81,13 @@ locationsRoute.post(
       latitude: z.string(),
       name: z.string(),
       description: z.string(),
+      speciesIds: z.string().array().optional(),
     })
   ),
   async (ctx) => {
     const db = ctx.get('database')
     const { id } = ctx.get('userPayload')
-    const { longitude, latitude, name, description } = ctx.req.valid('json')
+    const { longitude, latitude, name, description, speciesIds } = ctx.req.valid('json')
 
     const locationList = await db
       .insert(locations)
@@ -98,7 +100,23 @@ locationsRoute.post(
 
     const locationItem = locationList[0]
 
-    return ctx.json(locationItem)
+    if (speciesIds && speciesIds.length > 0) {
+      const speciesLocationList = await db
+        .insert(speciesLocation)
+        .values(speciesIds.map((id) => ({ locationId: locationItem.id, speciesId: id })))
+        .returning()
+
+      if (speciesLocationList.length === 0) {
+        return ctx.json({ message: 'Failed to link location to species' }, 500)
+      }
+    }
+
+    const returningLocation = await db.query.locations.findFirst({
+      where: (location, { eq }) => eq(location.id, locationItem.id),
+      with: { speciesLocations: { with: { species: true } } },
+    })
+
+    return ctx.json(returningLocation)
   }
 )
 
@@ -113,12 +131,14 @@ locationsRoute.put(
       latitude: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional().nullable(),
+      speciesIds: z.string().array().optional(),
+      deleteSpeciesIds: z.string().array().optional(),
     })
   ),
   async (ctx) => {
     const db = ctx.get('database')
     const { id } = ctx.req.valid('param')
-    const updateDatas = ctx.req.valid('json')
+    const { speciesIds, deleteSpeciesIds, ...updateDatas } = ctx.req.valid('json')
     const { id: userId, role } = ctx.get('userPayload')
 
     const locationList = await db
@@ -133,7 +153,27 @@ locationsRoute.put(
 
     const locationItem = locationList[0]
 
-    return ctx.json(locationItem)
+    if (speciesIds && speciesIds.length > 0) {
+      const speciesLocationList = await db
+        .insert(speciesLocation)
+        .values(speciesIds.map((id) => ({ locationId: locationItem.id, speciesId: id })))
+        .returning()
+
+      if (speciesLocationList.length === 0) {
+        return ctx.json({ message: 'Failed to link location to species' }, 500)
+      }
+    }
+
+    if (deleteSpeciesIds && deleteSpeciesIds.length > 0) {
+      await db.delete(speciesLocation).where(inArray(speciesLocation.speciesId, deleteSpeciesIds))
+    }
+
+    const returningLocation = await db.query.locations.findFirst({
+      where: (location, { eq }) => eq(location.id, locationItem.id),
+      with: { speciesLocations: { with: { species: true } } },
+    })
+
+    return ctx.json(returningLocation)
   }
 )
 
