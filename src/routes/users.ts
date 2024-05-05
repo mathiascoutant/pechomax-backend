@@ -22,6 +22,11 @@ usersRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().optio
     columns: {
       password: false,
     },
+    with: {
+      level: true,
+      catches: true,
+      locations: true,
+    },
     limit: pageSize,
     offset: (page - 1) * pageSize,
   })
@@ -36,6 +41,11 @@ usersRoute.get('/all', async (ctx) => {
     columns: {
       password: false,
     },
+    with: {
+      level: true,
+      catches: true,
+      locations: true,
+    },
   })
 
   return ctx.json(userList, 200)
@@ -48,6 +58,11 @@ usersRoute.get('/self', isAuth(), async (ctx) => {
   const user = await db.query.users.findFirst({
     columns: {
       password: false,
+    },
+    with: {
+      level: true,
+      catches: true,
+      locations: true,
     },
     where: (user, { eq }) => eq(user.id, payload.id),
   })
@@ -74,6 +89,11 @@ usersRoute.get(
     const user = await db.query.users.findFirst({
       columns: {
         password: false,
+      },
+      with: {
+        level: true,
+        catches: true,
+        locations: true,
       },
       where: (user, { eq }) => eq(user.username, username),
     })
