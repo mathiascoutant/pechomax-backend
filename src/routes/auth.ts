@@ -129,7 +129,7 @@ authRoute.post(
       return ctx.json({ message: 'User not found' }, 404)
     }
 
-    const isMatch = compare(password, user.password)
+    const isMatch = await compare(password, user.password)
 
     if (isMatch) {
       const payload: Payload = {
