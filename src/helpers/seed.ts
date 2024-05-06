@@ -45,7 +45,7 @@ async function createLevel(value: number, start: number, end?: number) {
       title: faker.lorem.word(),
       value,
       start,
-      end,
+      end: end ?? null,
     })
     .returning()
 
@@ -126,7 +126,7 @@ export default async function seedDb() {
     createLevel(1, 0, 100),
     createLevel(2, 101, 200),
     createLevel(3, 201, 300),
-    createLevel(3, 301),
+    createLevel(4, 301),
   ])
 
   const userList = await Promise.all([
