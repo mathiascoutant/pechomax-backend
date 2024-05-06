@@ -19,6 +19,7 @@ messagesRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().op
     with: { user: true },
     limit: pageSize,
     offset: (page - 1) * pageSize,
+    orderBy: (msg, { desc }) => desc(msg.updatedAt),
   })
 
   return ctx.json(messages)

@@ -29,6 +29,7 @@ usersRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().optio
     },
     limit: pageSize,
     offset: (page - 1) * pageSize,
+    orderBy: (usr, { desc }) => desc(usr.updatedAt),
   })
 
   return ctx.json(userList, 200)

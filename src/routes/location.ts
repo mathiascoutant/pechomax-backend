@@ -19,6 +19,7 @@ locationsRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().o
     with: { user: true, speciesLocations: { with: { species: true } } },
     limit: pageSize,
     offset: (page - 1) * pageSize,
+    orderBy: (loc, { desc }) => desc(loc.updatedAt),
   })
 
   return ctx.json(locations)

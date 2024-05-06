@@ -39,7 +39,10 @@ categoriesRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().
 
   const pageSize = Number(env(ctx).PAGE_SIZE)
 
-  const categoryList = await db.query.categories.findMany({ limit: pageSize, offset: (page - 1) * pageSize })
+  const categoryList = await db.query.categories.findMany({
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
+  })
 
   return ctx.json(categoryList)
 })

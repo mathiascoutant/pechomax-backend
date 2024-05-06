@@ -24,6 +24,7 @@ catchesRoute.get('/', zValidator('query', z.object({ page: z.coerce.number().opt
     },
     limit: pageSize,
     offset: (page - 1) * pageSize,
+    orderBy: (catchItem, { desc }) => desc(catchItem.updatedAt),
   })
 
   return ctx.json(catchList)

@@ -24,6 +24,7 @@ conversationsRoute.get('/', zValidator('query', z.object({ page: z.coerce.number
     },
     limit: pageSize,
     offset: (page - 1) * pageSize,
+    orderBy: (conv, { desc }) => desc(conv.updatedAt),
   })
 
   return ctx.json(conversations)
