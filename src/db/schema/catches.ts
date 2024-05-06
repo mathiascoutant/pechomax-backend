@@ -1,4 +1,4 @@
-import { date, integer, pgTable, text, uuid } from 'drizzle-orm/pg-core'
+import { date, integer, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { users } from './users'
 import { species } from './species'
 import { relations } from 'drizzle-orm'
@@ -17,6 +17,11 @@ export const catches = pgTable('catches', {
   date: date('date').notNull(),
   speciesId: uuid('species_id').references(() => species.id),
   userId: uuid('user_id').references(() => users.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at')
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 })
 
 export const catchesRlations = relations(catches, ({ one }) => ({
