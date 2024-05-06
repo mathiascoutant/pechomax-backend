@@ -10,13 +10,17 @@ import { locations } from 'src/db/schema/locations'
 import { speciesLocation } from 'src/db/schema/speciesLocation'
 import { catches } from 'src/db/schema/catches'
 import { randomFrom, randomNumber, randomsFrom } from './random'
+import { genSalt, hash } from 'bcrypt'
 
 async function createUser(role: 'User' | 'Admin', level: string, username?: string, password?: string) {
+  const salt = await genSalt()
+  const hashedPassword = await hash(password ?? faker.internet.password(), salt)
+
   const user = await db
     .insert(users)
     .values({
       email: faker.internet.email(),
-      password: password ?? faker.internet.password(),
+      password: hashedPassword,
       username: username ?? faker.person.firstName(),
       role: role,
       profilePic: 'https://thispersondoesnotexist.com/',
