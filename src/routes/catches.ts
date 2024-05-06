@@ -176,8 +176,11 @@ catchesRoute.put(
     const catchItem = catchList[0]
 
     const newLevel = await db.query.levels.findFirst({
-      where: (level, { and, gte, lt }) =>
-        and(gte(level.start, score + catchItem.pointValue), lt(level.end, score + catchItem.pointValue)),
+      where: (level, { and, or, gte, lt }) =>
+        or(
+          and(gte(level.start, score + catchItem.pointValue), lt(level.end, score + catchItem.pointValue)),
+          eq(level.end, null)
+        ),
     })
 
     await db

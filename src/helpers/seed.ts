@@ -11,7 +11,7 @@ import { speciesLocation } from 'src/db/schema/speciesLocation'
 import { catches } from 'src/db/schema/catches'
 import { randomFrom, randomNumber, randomsFrom } from './random'
 
-async function createUser(role: 'User' | 'Admin', username?: string, password?: string) {
+async function createUser(role: 'User' | 'Admin', level: string, username?: string, password?: string) {
   const user = await db
     .insert(users)
     .values({
@@ -20,6 +20,7 @@ async function createUser(role: 'User' | 'Admin', username?: string, password?: 
       username: username ?? faker.person.firstName(),
       role: role,
       profilePic: 'https://thispersondoesnotexist.com/',
+      levelId: level,
     })
     .returning()
 
@@ -37,7 +38,7 @@ async function createCategory() {
   return cat[0]
 }
 
-async function createLevel(value: number, start: number, end: number) {
+async function createLevel(value: number, start: number, end?: number) {
   const level = await db
     .insert(levels)
     .values({
@@ -104,12 +105,12 @@ async function createLocation(owner: string, species: string[]) {
   return loc[0]
 }
 
-async function createCatch(owner: string, species: string) {
+async function createCatch(owner: string, species: string, location: string) {
   const catchesItem = await db.insert(catches).values({
     date: faker.date.recent().toISOString(),
     length: faker.number.int({ max: 100 }),
     weight: faker.number.int({ max: 100 }),
-    localisation: faker.lorem.word(),
+    locationId: location,
     pictures: [],
     pointValue: faker.number.int({ max: 100 }),
     description: faker.lorem.sentence(),
@@ -121,14 +122,19 @@ async function createCatch(owner: string, species: string) {
 }
 
 export default async function seedDb() {
+  const levelList = await Promise.all([
+    createLevel(1, 0, 100),
+    createLevel(2, 101, 200),
+    createLevel(3, 201, 300),
+    createLevel(3, 301),
+  ])
+
   const userList = await Promise.all([
-    ...Array.from({ length: 10 }, () => createUser('User')),
-    createUser('Admin', 'admin', 'adminadmin'),
+    ...Array.from({ length: 10 }, () => createUser('User', levelList[0].id)),
+    createUser('Admin', levelList[0].id, 'admin', 'adminadmin'),
   ])
 
   const catList = await Promise.all(Array.from({ length: 3 }, () => createCategory()))
-
-  await Promise.all([createLevel(1, 0, 100), createLevel(2, 101, 200), createLevel(3, 201, 300)])
 
   const conversationList = await Promise.all(
     Array.from({ length: 20 }, () => createConversation(randomFrom(userList).id, randomFrom(catList).id))
@@ -140,7 +146,7 @@ export default async function seedDb() {
 
   const speciesList = await Promise.all(Array.from({ length: 10 }, () => createSpecies()))
 
-  await Promise.all(
+  const locationList = await Promise.all(
     Array.from({ length: 10 }, () =>
       createLocation(
         randomFrom(userList).id,
@@ -149,5 +155,9 @@ export default async function seedDb() {
     )
   )
 
-  await Promise.all(Array.from({ length: 10 }, () => createCatch(randomFrom(userList).id, randomFrom(speciesList).id)))
+  await Promise.all(
+    Array.from({ length: 10 }, () =>
+      createCatch(randomFrom(userList).id, randomFrom(speciesList).id, randomFrom(locationList).id)
+    )
+  )
 }
