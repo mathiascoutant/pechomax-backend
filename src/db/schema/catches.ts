@@ -9,14 +9,14 @@ export const catches = pgTable('catches', {
   length: integer('length').notNull(),
   weight: integer('weight').notNull(),
   locationId: uuid('location_id')
-    .references(() => locations.id)
+    .references(() => locations.id, { onDelete: 'cascade' })
     .notNull(),
   pictures: text('pictures').array().notNull(),
   description: text('description'),
   pointValue: integer('point_value').notNull(),
   date: date('date').notNull(),
-  speciesId: uuid('species_id').references(() => species.id),
-  userId: uuid('user_id').references(() => users.id),
+  speciesId: uuid('species_id').references(() => species.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at')
     .notNull()

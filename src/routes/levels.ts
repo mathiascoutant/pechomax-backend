@@ -42,7 +42,7 @@ levelsRoute.post(
       title: z.string(),
       value: z.number(),
       start: z.number(),
-      end: z.number(),
+      end: z.number().optional(),
     })
   ),
   async (ctx) => {

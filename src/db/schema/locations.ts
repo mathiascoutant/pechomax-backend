@@ -10,7 +10,7 @@ export const locations = pgTable('locations', {
   latitude: text('latitude').unique().notNull(),
   name: text('name').notNull(),
   description: text('description'),
-  userId: uuid('user_id').references(() => users.id),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at')
     .notNull()

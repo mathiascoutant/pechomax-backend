@@ -5,8 +5,8 @@ import { relations } from 'drizzle-orm'
 
 export const speciesLocation = pgTable('speciesLocation', {
   id: uuid('id').defaultRandom().primaryKey(),
-  speciesId: uuid('species_id').references(() => species.id),
-  locationId: uuid('location_id').references(() => locations.id),
+  speciesId: uuid('species_id').references(() => species.id, { onDelete: 'cascade' }),
+  locationId: uuid('location_id').references(() => locations.id, { onDelete: 'cascade' }),
 })
 
 export const sepciesLocationsRelations = relations(speciesLocation, ({ one }) => ({

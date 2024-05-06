@@ -19,7 +19,7 @@ export const users = pgTable('users', {
   city: text('city'),
   region: text('region'),
   zipCode: text('zip_code'),
-  levelId: uuid('level_id').references(() => levels.id),
+  levelId: uuid('level_id').references(() => levels.id, { onDelete: 'cascade' }),
   score: integer('score').default(0),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at')

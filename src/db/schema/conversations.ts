@@ -7,10 +7,10 @@ import { messages } from './messages'
 export const conversations = pgTable('conversations', {
   id: uuid('id').defaultRandom().primaryKey(),
   title: text('title').notNull(),
-  categoryId: uuid('category_id').references(() => categories.id, { onDelete: 'cascade' }),
+  categoryId: uuid('category_id').references(() => categories.id, { onDelete: 'set null' }),
   userId: uuid('user_id')
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at')
     .notNull()
